@@ -1,3 +1,4 @@
+// java
 package com.vencentdev.freelance.config;
 
 import com.vencentdev.freelance.model.Role;
@@ -17,16 +18,24 @@ public class DataInitializer {
     @Bean
     CommandLineRunner init(RoleRepository roleRepo, UserRepository userRepo, PasswordEncoder encoder) {
         return args -> {
-            Role clientRole = roleRepo.findByName("ROLE_CLIENT").orElseGet(() -> roleRepo.save(new Role("ROLE_CLIENT")));
-            Role freelancerRole = roleRepo.findByName("ROLE_FREELANCER").orElseGet(() -> roleRepo.save(new Role("ROLE_FREELANCER")));
+            Role clientRole = roleRepo.findByName("CLIENT")
+                    .orElseGet(() -> roleRepo.save(new Role("CLIENT")));
+            Role freelancerRole = roleRepo.findByName("FREELANCER")
+                    .orElseGet(() -> roleRepo.save(new Role("FREELANCER")));
+            Role adminRole = roleRepo.findByName("ADMIN")
+                    .orElseGet(() -> roleRepo.save(new Role("ADMIN")));
 
-            if (userRepo.findByUsername("admin").isEmpty()) {
-                User admin = new User("freelancer", encoder.encode("freelancer123"), Set.of(clientRole, freelancerRole));
-                userRepo.save(admin);
+            if (userRepo.findByUsername("freelancer").isEmpty()) {
+                User freelancer = new User("freelancer","freelancer@gmail.com", encoder.encode("freelancer123"), Set.of(freelancerRole));
+                userRepo.save(freelancer);
             }
-            if (userRepo.findByUsername("user").isEmpty()) {
-                User user = new User("client", encoder.encode("user123"), Set.of(clientRole));
-                userRepo.save(user);
+            if (userRepo.findByUsername("client").isEmpty()) {
+                User client = new User("client","client@gmail.com", encoder.encode("user123"), Set.of(clientRole));
+                userRepo.save(client);
+            }
+            if (userRepo.findByUsername("admin").isEmpty()) {
+                User admin = new User("admin","admin@gmail.com", encoder.encode("admin123"), Set.of(adminRole));
+                userRepo.save(admin);
             }
         };
     }
