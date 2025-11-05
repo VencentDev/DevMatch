@@ -7,6 +7,7 @@ import com.vencentdev.freelance.model.User;
 import com.vencentdev.freelance.model.Role;
 import com.vencentdev.freelance.repository.RoleRepository;
 import com.vencentdev.freelance.repository.UserRepository;
+import com.vencentdev.freelance.util.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,21 +26,24 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final VerificationTokenService tokenService;
+    private final JwtUtil jwtUtil;
 
     public AuthService(AuthenticationManager authenticationManager,
                        UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        RoleRepository roleRepository,
-                       VerificationTokenService tokenService) {
+                       VerificationTokenService tokenService,
+                       JwtUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.tokenService = tokenService;
+        this.jwtUtil = jwtUtil;
     }
 
     public Map<String, Object> login(String identifier, String password) throws AuthenticationException {
-        // resolve username by identifier (username or email)
+
         String username = userRepository.findByUsername(identifier)
                 .map(User::getUsername)
                 .or(() -> userRepository.findByEmail(identifier).map(User::getUsername))
@@ -54,9 +58,13 @@ public class AuthService {
                 .map(a -> a.getAuthority())
                 .collect(Collectors.toList());
 
+        String token = jwtUtil.generateToken(username);
+
         return Map.of(
                 "username", username,
                 "roles", roles,
+                "token", token,
+                "accessToken", token,
                 "message", "Login successful"
         );
     }
