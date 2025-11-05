@@ -1,4 +1,3 @@
-// java
 package com.vencentdev.freelance.service;
 
 import com.vencentdev.freelance.controller.dto.ProjectRequest;
@@ -25,8 +24,6 @@ public class ProjectService {
         User owner = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NoSuchElementException("User not found: " + username));
 
-        // Require finished profile before allowing project creation.
-        // Assumes User has a boolean getter named isProfileCompleted()
         if (!Boolean.TRUE.equals(owner.isProfileCompleted())) {
             throw new IllegalStateException("Complete your profile before posting projects");
         }
@@ -47,6 +44,50 @@ public class ProjectService {
     }
 
     public Project getById(Long id) {
-        return projectRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Project not found: " + id));
+        return projectRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Project not found: " + id));
+    }
+
+    public Project updateProject(String username, Long id, ProjectRequest req) {
+        Project existing = projectRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Project not found: " + id));
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + username));
+
+        // Debug logs
+        System.out.println("DEBUG: Authenticated user ID: " + currentUser.getId());
+        System.out.println("DEBUG: Project owner ID: " + existing.getOwner().getId());
+
+        // Ownership check
+        if (!existing.getOwner().getId().equals(currentUser.getId())) {
+            throw new IllegalStateException("Only the project owner can edit this project");
+        }
+
+        existing.setTitle(req.getTitle());
+        existing.setDescription(req.getDescription());
+        existing.setBudget(req.getBudget());
+        if (req.getSkillsNeeded() != null) {
+            existing.setSkillsNeeded(req.getSkillsNeeded());
+        }
+        existing.setDeadline(req.getDeadline());
+
+        return projectRepository.save(existing);
+    }
+
+
+    public void deleteProject(String username, Long id) {
+        Project existing = projectRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Project not found: " + id));
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + username));
+
+        // Ownership check using user ID
+        if (!existing.getOwner().getId().equals(currentUser.getId())) {
+            throw new IllegalStateException("Only the project owner can delete this project");
+        }
+
+        projectRepository.delete(existing);
     }
 }
