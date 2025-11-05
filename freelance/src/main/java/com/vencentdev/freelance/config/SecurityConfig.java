@@ -1,21 +1,31 @@
-// java
 package com.vencentdev.freelance.config;
 
+import com.vencentdev.freelance.security.JwtAuthenticationFilter;
+import com.vencentdev.freelance.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -28,16 +38,21 @@ public class SecurityConfig {
     }
 
     @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtUtil, userDetailsService);
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // only make the public auth endpoints permitAll
                         .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/verify").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .httpBasic(Customizer.withDefaults());
+                .httpBasic(Customizer.withDefaults())
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
