@@ -118,4 +118,22 @@ public class ProjectController {
             return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
         }
     }
+
+    @GetMapping("/browse")
+    public ResponseEntity<?> browseProjects(
+            @RequestParam(required = false) List<String> skills,
+            @RequestParam(required = false) Double minBudget,
+            @RequestParam(required = false) Double maxBudget,
+            @RequestParam(required = false) String deadlineBefore) {
+        try {
+            List<Project> projects = projectService.browseProjects(skills, minBudget, maxBudget, deadlineBefore);
+            List<ProjectResponse> responseList = projects.stream()
+                    .map(this::mapToResponse)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(responseList);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Unexpected error: " + e.getMessage()));
+        }
+    }
+
 }
