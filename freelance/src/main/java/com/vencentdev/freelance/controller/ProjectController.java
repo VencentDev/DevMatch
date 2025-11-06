@@ -5,6 +5,8 @@ import com.vencentdev.freelance.controller.dto.ProjectResponse;
 import com.vencentdev.freelance.model.Project;
 import com.vencentdev.freelance.service.ProjectService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/projects")
 public class ProjectController {
+    private static final Logger logger = LoggerFactory.getLogger(ProjectController.class);
     private final ProjectService projectService;
 
     public ProjectController(ProjectService projectService) {
@@ -43,6 +46,11 @@ public class ProjectController {
         return response;
     }
 
+    private ResponseEntity<?> handleException(Exception e, int statusCode) {
+        logger.error("Error: {}", e.getMessage(), e);
+        return ResponseEntity.status(statusCode).body(Map.of("error", e.getMessage()));
+    }
+
     @PostMapping
     @PreAuthorize("hasAuthority('ROLE_CLIENT')")
     public ResponseEntity<?> createProject(@Valid @RequestBody ProjectRequest req,
@@ -54,15 +62,12 @@ public class ProjectController {
                     "message", "Project created",
                     "project", mapToResponse(created)
             ));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(400).body(Map.of("error", e.getMessage()));
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        } catch (IllegalStateException | NoSuchElementException e) {
+            return handleException(e, 400);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("error", "Unexpected error: " + e.getMessage()));
+            return handleException(e, 500);
         }
     }
-
 
     @PutMapping("/{id}")
     public ResponseEntity<?> editProject(@PathVariable Long id,
@@ -76,11 +81,11 @@ public class ProjectController {
                     "project", mapToResponse(updated)
             ));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+            return handleException(e, 404);
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(403).body(Map.of("error", e.getMessage()));
+            return handleException(e, 403);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("error", "Unexpected error: " + e.getMessage()));
+            return handleException(e, 500);
         }
     }
 
@@ -92,11 +97,11 @@ public class ProjectController {
             projectService.deleteProject(username, id);
             return ResponseEntity.ok(Map.of("message", "Project deleted"));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+            return handleException(e, 404);
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(403).body(Map.of("error", e.getMessage()));
+            return handleException(e, 403);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("error", "Unexpected error: " + e.getMessage()));
+            return handleException(e, 500);
         }
     }
 
@@ -115,7 +120,7 @@ public class ProjectController {
             Project project = projectService.getById(id);
             return ResponseEntity.ok(mapToResponse(project));
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+            return handleException(e, 404);
         }
     }
 
@@ -132,8 +137,7 @@ public class ProjectController {
                     .collect(Collectors.toList());
             return ResponseEntity.ok(responseList);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("error", "Unexpected error: " + e.getMessage()));
+            return handleException(e, 500);
         }
     }
-
 }
