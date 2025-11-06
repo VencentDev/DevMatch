@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
@@ -90,4 +91,16 @@ public class ProjectService {
 
         projectRepository.delete(existing);
     }
+
+    public List<Project> browseProjects(List<String> skills, Double minBudget, Double maxBudget, String deadlineBefore) {
+        return projectRepository.findAll().stream()
+                .filter(project -> skills == null || skills.isEmpty() ||
+                        project.getSkillsNeeded().stream().anyMatch(skills::contains))
+                .filter(project -> minBudget == null || project.getBudget() >= minBudget)
+                .filter(project -> maxBudget == null || project.getBudget() <= maxBudget)
+                .filter(project -> deadlineBefore == null ||
+                        project.getDeadline().isBefore(java.time.LocalDate.parse(deadlineBefore)))
+                .collect(Collectors.toList());
+    }
+
 }
