@@ -5,6 +5,8 @@ import com.vencentdev.freelance.model.Project;
 import com.vencentdev.freelance.model.User;
 import com.vencentdev.freelance.repository.ProjectRepository;
 import com.vencentdev.freelance.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
+    private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
 
@@ -22,22 +25,21 @@ public class ProjectService {
     }
 
     public Project createProject(String username, ProjectRequest req) {
-        User owner = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + username));
+        User owner = findUserByUsername(username);
 
         if (!Boolean.TRUE.equals(owner.isProfileCompleted())) {
             throw new IllegalStateException("Complete your profile before posting projects");
         }
 
-        Project p = new Project();
-        p.setTitle(req.getTitle());
-        p.setDescription(req.getDescription());
-        p.setBudget(req.getBudget());
-        if (req.getSkillsNeeded() != null) p.setSkillsNeeded(req.getSkillsNeeded());
-        p.setDeadline(req.getDeadline());
-        p.setOwner(owner);
+        Project project = new Project();
+        project.setTitle(req.getTitle());
+        project.setDescription(req.getDescription());
+        project.setBudget(req.getBudget());
+        project.setSkillsNeeded(req.getSkillsNeeded());
+        project.setDeadline(req.getDeadline());
+        project.setOwner(owner);
 
-        return projectRepository.save(p);
+        return projectRepository.save(project);
     }
 
     public List<Project> listAll() {
@@ -45,62 +47,79 @@ public class ProjectService {
     }
 
     public Project getById(Long id) {
-        return projectRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Project not found: " + id));
+        if (id == null) {
+            throw new IllegalArgumentException("Project ID cannot be null");
+        }
+        return findProjectById(id);
     }
 
     public Project updateProject(String username, Long id, ProjectRequest req) {
-        Project existing = projectRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Project not found: " + id));
+        Project existingProject = findProjectById(id);
+        User currentUser = findUserByUsername(username);
 
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + username));
+        validateOwnership(existingProject, currentUser);
 
-        // Debug logs
-        System.out.println("DEBUG: Authenticated user ID: " + currentUser.getId());
-        System.out.println("DEBUG: Project owner ID: " + existing.getOwner().getId());
+        existingProject.setTitle(req.getTitle());
+        existingProject.setDescription(req.getDescription());
+        existingProject.setBudget(req.getBudget());
+        existingProject.setSkillsNeeded(req.getSkillsNeeded());
+        existingProject.setDeadline(req.getDeadline());
 
-        // Ownership check
-        if (!existing.getOwner().getId().equals(currentUser.getId())) {
-            throw new IllegalStateException("Only the project owner can edit this project");
-        }
-
-        existing.setTitle(req.getTitle());
-        existing.setDescription(req.getDescription());
-        existing.setBudget(req.getBudget());
-        if (req.getSkillsNeeded() != null) {
-            existing.setSkillsNeeded(req.getSkillsNeeded());
-        }
-        existing.setDeadline(req.getDeadline());
-
-        return projectRepository.save(existing);
+        return projectRepository.save(existingProject);
     }
 
-
     public void deleteProject(String username, Long id) {
-        Project existing = projectRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Project not found: " + id));
+        Project existingProject = findProjectById(id);
+        User currentUser = findUserByUsername(username);
 
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("User not found: " + username));
+        validateOwnership(existingProject, currentUser);
 
-        // Ownership check using user ID
-        if (!existing.getOwner().getId().equals(currentUser.getId())) {
-            throw new IllegalStateException("Only the project owner can delete this project");
-        }
-
-        projectRepository.delete(existing);
+        projectRepository.delete(existingProject);
     }
 
     public List<Project> browseProjects(List<String> skills, Double minBudget, Double maxBudget, String deadlineBefore) {
         return projectRepository.findAll().stream()
-                .filter(project -> skills == null || skills.isEmpty() ||
-                        project.getSkillsNeeded().stream().anyMatch(skills::contains))
-                .filter(project -> minBudget == null || project.getBudget() >= minBudget)
-                .filter(project -> maxBudget == null || project.getBudget() <= maxBudget)
-                .filter(project -> deadlineBefore == null ||
-                        project.getDeadline().isBefore(java.time.LocalDate.parse(deadlineBefore)))
+                .filter(project -> matchesSkills(project, skills))
+                .filter(project -> matchesBudget(project, minBudget, maxBudget))
+                .filter(project -> matchesDeadline(project, deadlineBefore))
                 .collect(Collectors.toList());
     }
 
+    private User findUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + username));
+    }
+
+    private Project findProjectById(Long id) {
+        logger.info("Searching for project with ID: {}", id);
+        return projectRepository.findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Project not found with ID: {}", id);
+                    return new NoSuchElementException("Project not found: " + id);
+                });
+    }
+
+    private void validateOwnership(Project project, User user) {
+        if (!project.getOwner().getId().equals(user.getId())) {
+            throw new IllegalStateException("Only the project owner can perform this action");
+        }
+    }
+
+    private boolean matchesSkills(Project project, List<String> skills) {
+        return skills == null || skills.isEmpty() ||
+                project.getSkillsNeeded().stream()
+                        .map(String::toLowerCase) // Convert project skills to lowercase
+                        .anyMatch(skill -> skills.stream()
+                                .map(String::toLowerCase) // Convert input skills to lowercase
+                                .anyMatch(skill::equals));
+    }
+
+    private boolean matchesBudget(Project project, Double minBudget, Double maxBudget) {
+        return (minBudget == null || project.getBudget() >= minBudget) &&
+                (maxBudget == null || project.getBudget() <= maxBudget);
+    }
+
+    private boolean matchesDeadline(Project project, String deadlineBefore) {
+        return deadlineBefore == null || project.getDeadline().isBefore(java.time.LocalDate.parse(deadlineBefore));
+    }
 }
