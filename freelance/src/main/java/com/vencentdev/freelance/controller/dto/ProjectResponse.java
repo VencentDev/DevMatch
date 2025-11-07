@@ -1,3 +1,4 @@
+// java
 package com.vencentdev.freelance.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,6 +16,10 @@ public class ProjectResponse {
     private LocalDate deadline;
 
     private UserSummary owner;
+
+    // New: status and hired freelancer summary (nullable)
+    private String status;
+    private UserSummary hiredFreelancer;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -37,6 +42,12 @@ public class ProjectResponse {
 
     public UserSummary getOwner() { return owner; }
     public void setOwner(UserSummary owner) { this.owner = owner; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public UserSummary getHiredFreelancer() { return hiredFreelancer; }
+    public void setHiredFreelancer(UserSummary hiredFreelancer) { this.hiredFreelancer = hiredFreelancer; }
 
     // Nested class for owner summary
     public static class UserSummary {

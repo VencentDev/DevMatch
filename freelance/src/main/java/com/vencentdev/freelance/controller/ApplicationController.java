@@ -1,3 +1,4 @@
+// java
 package com.vencentdev.freelance.controller;
 
 import com.vencentdev.freelance.controller.dto.ApplicationRequest;
@@ -58,6 +59,25 @@ public class ApplicationController {
             return ResponseEntity.status(403).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             logger.error("List applicants error", e);
+            return ResponseEntity.status(500).body(Map.of("error", "Internal server error"));
+        }
+    }
+
+    // New: hire endpoint
+    @PostMapping("/{projectId}/applications/{applicationId}/hire")
+    @PreAuthorize("hasAuthority('ROLE_CLIENT')")
+    public ResponseEntity<?> hire(@PathVariable Long projectId,
+                                  @PathVariable Long applicationId,
+                                  Authentication authentication) {
+        String username = authentication.getName();
+        try {
+            applicationService.hireFreelancer(username, projectId, applicationId);
+            return ResponseEntity.ok(Map.of("message", "Freelancer hired"));
+        } catch (IllegalStateException | NoSuchElementException e) {
+            logger.warn("Hire failed: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Hire error", e);
             return ResponseEntity.status(500).body(Map.of("error", "Internal server error"));
         }
     }

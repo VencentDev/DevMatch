@@ -1,3 +1,4 @@
+// java
 package com.vencentdev.freelance.controller;
 
 import com.vencentdev.freelance.controller.dto.ProjectRequest;
@@ -42,6 +43,15 @@ public class ProjectController {
         response.setSkillsNeeded(project.getSkillsNeeded());
         response.setDeadline(project.getDeadline());
         response.setOwner(ownerSummary);
+        response.setStatus(project.getStatus().name());
+
+        if (project.getHiredFreelancer() != null) {
+            response.setHiredFreelancer(new ProjectResponse.UserSummary(
+                    project.getHiredFreelancer().getId(),
+                    project.getHiredFreelancer().getUsername(),
+                    project.getHiredFreelancer().getEmail()
+            ));
+        }
 
         return response;
     }
@@ -129,9 +139,11 @@ public class ProjectController {
             @RequestParam(required = false) List<String> skills,
             @RequestParam(required = false) Double minBudget,
             @RequestParam(required = false) Double maxBudget,
-            @RequestParam(required = false) String deadlineBefore) {
+            @RequestParam(required = false) String deadlineBefore,
+            Authentication authentication) {
         try {
-            List<Project> projects = projectService.browseProjects(skills, minBudget, maxBudget, deadlineBefore);
+            String viewer = authentication != null && authentication.isAuthenticated() ? authentication.getName() : null;
+            List<Project> projects = projectService.browseProjects(viewer, skills, minBudget, maxBudget, deadlineBefore);
             List<ProjectResponse> responseList = projects.stream()
                     .map(this::mapToResponse)
                     .collect(Collectors.toList());
