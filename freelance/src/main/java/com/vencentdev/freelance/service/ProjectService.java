@@ -1,3 +1,4 @@
+// java
 package com.vencentdev.freelance.service;
 
 import com.vencentdev.freelance.controller.dto.ProjectRequest;
@@ -38,6 +39,7 @@ public class ProjectService {
         project.setSkillsNeeded(req.getSkillsNeeded());
         project.setDeadline(req.getDeadline());
         project.setOwner(owner);
+        project.setStatus(Project.Status.OPEN);
 
         return projectRepository.save(project);
     }
@@ -77,12 +79,35 @@ public class ProjectService {
         projectRepository.delete(existingProject);
     }
 
-    public List<Project> browseProjects(List<String> skills, Double minBudget, Double maxBudget, String deadlineBefore) {
+    /**
+     * Browse projects with filters. If viewerUsername belongs to a freelancer
+     * then hide projects that already have a hired freelancer.
+     */
+    public List<Project> browseProjects(String viewerUsername, List<String> skills, Double minBudget, Double maxBudget, String deadlineBefore) {
+        boolean hideHired;
+        if (viewerUsername != null) {
+            User viewer = userRepository.findByUsername(viewerUsername).orElse(null);
+            if (viewer != null) {
+                hideHired = viewer.getAuthorities().stream()
+                        .anyMatch(a -> "ROLE_FREELANCER".equals(a.getAuthority()));
+            } else {
+                hideHired = false;
+            }
+        } else {
+            hideHired = false;
+        }
+
         return projectRepository.findAll().stream()
+                .filter(project -> !hideHired || project.getHiredFreelancer() == null)
                 .filter(project -> matchesSkills(project, skills))
                 .filter(project -> matchesBudget(project, minBudget, maxBudget))
                 .filter(project -> matchesDeadline(project, deadlineBefore))
                 .collect(Collectors.toList());
+    }
+
+    // allow external save (used when hiring)
+    public Project saveProject(Project project) {
+        return projectRepository.save(project);
     }
 
     private User findUserByUsername(String username) {
@@ -108,9 +133,9 @@ public class ProjectService {
     private boolean matchesSkills(Project project, List<String> skills) {
         return skills == null || skills.isEmpty() ||
                 project.getSkillsNeeded().stream()
-                        .map(String::toLowerCase) // Convert project skills to lowercase
+                        .map(String::toLowerCase)
                         .anyMatch(skill -> skills.stream()
-                                .map(String::toLowerCase) // Convert input skills to lowercase
+                                .map(String::toLowerCase)
                                 .anyMatch(skill::equals));
     }
 
