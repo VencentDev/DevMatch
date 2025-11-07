@@ -1,3 +1,4 @@
+// java
 package com.vencentdev.freelance.service;
 
 import com.vencentdev.freelance.controller.dto.ApplicationRequest;
@@ -42,6 +43,10 @@ public class ApplicationService {
             throw new IllegalStateException("Cannot apply to your own project");
         }
 
+        if (project.getHiredFreelancer() != null) {
+            throw new IllegalStateException("Project already has a hired freelancer");
+        }
+
         applicationRepository.findByFreelancerIdAndProjectId(freelancer.getId(), projectId)
                 .ifPresent(a -> {
                     throw new IllegalStateException("Already applied to this project");
@@ -65,5 +70,47 @@ public class ApplicationService {
         }
 
         return applicationRepository.findByProjectId(projectId);
+    }
+
+    /**
+     * Client hires a freelancer by application id.
+     * Accepts chosen application, rejects others and updates project.
+     */
+    public void hireFreelancer(String clientUsername, Long projectId, Long applicationId) {
+        Project project = projectService.getById(projectId);
+
+        if (!project.getOwner().getUsername().equals(clientUsername)) {
+            throw new IllegalStateException("Only project owner can hire a freelancer");
+        }
+        if (project.getHiredFreelancer() != null) {
+            throw new IllegalStateException("A freelancer has already been hired for this project");
+        }
+
+        Application chosen = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new NoSuchElementException("Application not found: " + applicationId));
+
+        if (!chosen.getProject().getId().equals(projectId)) {
+            throw new IllegalStateException("Application does not belong to this project");
+        }
+
+        // Accept chosen
+        chosen.setStatus(Application.Status.ACCEPTED);
+        applicationRepository.save(chosen);
+
+        // Reject others
+        List<Application> others = applicationRepository.findByProjectId(projectId);
+        for (Application a : others) {
+            if (!a.getId().equals(chosen.getId())) {
+                a.setStatus(Application.Status.REJECTED);
+            }
+        }
+        applicationRepository.saveAll(others);
+
+        // Update project
+        project.setHiredFreelancer(chosen.getFreelancer());
+        project.setStatus(Project.Status.IN_PROGRESS);
+        projectService.saveProject(project);
+
+        logger.info("Client {} hired freelancer {} for project {}", clientUsername, chosen.getFreelancer().getUsername(), projectId);
     }
 }

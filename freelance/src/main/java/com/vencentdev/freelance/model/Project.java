@@ -36,6 +36,17 @@ public class Project {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
+    // New: hired freelancer and project status
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hired_freelancer_id")
+    private User hiredFreelancer;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status = Status.OPEN;
+
+    public enum Status { OPEN, IN_PROGRESS, COMPLETED }
+
     public Project() {}
 
     public Long getId() { return id; }
@@ -51,4 +62,10 @@ public class Project {
     public void setDeadline(LocalDate deadline) { this.deadline = deadline; }
     public User getOwner() { return owner; }
     public void setOwner(User owner) { this.owner = owner; }
+
+    public User getHiredFreelancer() { return hiredFreelancer; }
+    public void setHiredFreelancer(User hiredFreelancer) { this.hiredFreelancer = hiredFreelancer; }
+
+    public Status getStatus() { return status; }
+    public void setStatus(Status status) { this.status = status; }
 }
