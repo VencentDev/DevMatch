@@ -3,6 +3,7 @@ package com.vencentdev.freelance.service;
 
 import com.vencentdev.freelance.controller.dto.ApplicationRequest;
 import com.vencentdev.freelance.model.Application;
+import com.vencentdev.freelance.model.Escrow;
 import com.vencentdev.freelance.model.Project;
 import com.vencentdev.freelance.model.User;
 import com.vencentdev.freelance.repository.ApplicationRepository;
@@ -20,13 +21,15 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
     private final ProjectService projectService;
+    private final EscrowService escrowService;
 
     public ApplicationService(ApplicationRepository applicationRepository,
                               UserRepository userRepository,
-                              ProjectService projectService) {
+                              ProjectService projectService, EscrowService escrowService) {
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
         this.projectService = projectService;
+        this.escrowService = escrowService;
     }
 
     public Application applyToProject(String freelancerUsername, Long projectId, ApplicationRequest req) {
@@ -96,6 +99,9 @@ public class ApplicationService {
         // Accept chosen
         chosen.setStatus(Application.Status.ACCEPTED);
         applicationRepository.save(chosen);
+
+        Double holdAmount = chosen.getProposedBudget();
+        Escrow escrow = escrowService.holdFunds(project.getOwner(), chosen.getFreelancer(), project, holdAmount);
 
         // Reject others
         List<Application> others = applicationRepository.findByProjectId(projectId);
