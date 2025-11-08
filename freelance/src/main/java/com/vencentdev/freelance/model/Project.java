@@ -36,7 +36,6 @@ public class Project {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    // New: hired freelancer and project status
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hired_freelancer_id")
     private User hiredFreelancer;
