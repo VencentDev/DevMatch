@@ -3,8 +3,13 @@ package com.vencentdev.devmatch.controller;
 
 import com.vencentdev.devmatch.controller.dto.ApplicationRequest;
 import com.vencentdev.devmatch.controller.dto.ApplicationResponse;
+import com.vencentdev.devmatch.controller.dto.CandidateResponse;
+import com.vencentdev.devmatch.controller.dto.CandidateScore;
 import com.vencentdev.devmatch.model.Application;
+import com.vencentdev.devmatch.model.Project;
 import com.vencentdev.devmatch.service.ApplicationService;
+import com.vencentdev.devmatch.service.ProjectService;
+import com.vencentdev.devmatch.service.RecommendationService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +18,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -23,9 +27,13 @@ import java.util.stream.Collectors;
 public class ApplicationController {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationController.class);
     private final ApplicationService applicationService;
+    private final RecommendationService recommendationService;
+    private final ProjectService projectService;
 
-    public ApplicationController(ApplicationService applicationService) {
+    public ApplicationController(ApplicationService applicationService, RecommendationService recommendationService, ProjectService projectService) {
         this.applicationService = applicationService;
+        this.projectService = projectService;
+        this.recommendationService = recommendationService;
     }
 
     @PostMapping("/{projectId}/apply")
@@ -48,12 +56,68 @@ public class ApplicationController {
 
     @GetMapping("/{projectId}/applications")
     @PreAuthorize("hasAuthority('ROLE_CLIENT')")
-    public ResponseEntity<?> listApplications(@PathVariable Long projectId, Authentication authentication) {
+    public ResponseEntity<?> listApplications(@PathVariable Long projectId,
+                                              @RequestParam(required = false) Double minScore,
+                                              @RequestParam(required = false) Integer recentDays,
+                                              @RequestParam(required = false, defaultValue = "score") String sortBy,
+                                              @RequestParam(required = false) Integer topN,
+                                              Authentication authentication) {
         String username = authentication.getName();
         try {
+            // ensure caller owns project (ApplicationService enforces access)
             List<Application> apps = applicationService.getApplicationsForProject(username, projectId);
-            List<ApplicationResponse> resp = apps.stream().map(this::map).collect(Collectors.toList());
-            return ResponseEntity.ok(resp);
+            Project project = projectService.getById(projectId);
+
+            LocalDateTime cutoff = null;
+            if (recentDays != null && recentDays > 0) {
+                cutoff = LocalDateTime.now().minusDays(recentDays);
+            }
+
+            List<CandidateResponse> candidates = new ArrayList<>();
+            for (Application a : apps) {
+                if (cutoff != null && (a.getCreatedAt() == null || a.getCreatedAt().isBefore(cutoff))) {
+                    continue;
+                }
+
+                double score = 0.0;
+                try {
+                    var cs = recommendationService.scoreCandidate(a.getFreelancer(), project, a.getProposedBudget());
+                    score = cs == null ? 0.0 : cs.getScore();
+                } catch (Exception e) {
+                    logger.warn("Failed to score candidate {}: {}", a.getFreelancer() == null ? "null" : a.getFreelancer().getId(), e.getMessage());
+                    // fallback score remains 0.0
+                }
+
+                if (minScore != null && score < minScore) continue;
+
+                CandidateResponse cr = new CandidateResponse();
+                cr.setId(a.getId());
+                cr.setFreelancerId(a.getFreelancer() == null ? null : a.getFreelancer().getId());
+                cr.setFreelancerUsername(a.getFreelancer() == null ? null : a.getFreelancer().getUsername());
+                cr.setProposalText(a.getProposalText());
+                cr.setProposedBudget(a.getProposedBudget());
+                cr.setStatus(a.getStatus() == null ? null : a.getStatus().name());
+                cr.setCreatedAt(a.getCreatedAt());
+                cr.setUpdatedAt(a.getUpdatedAt());
+                cr.setCandidateScore(score);
+
+                candidates.add(cr);
+            }
+
+            Comparator<CandidateResponse> comparator;
+            if ("recent".equalsIgnoreCase(sortBy)) {
+                comparator = Comparator.comparing(CandidateResponse::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder())).reversed();
+            } else {
+                comparator = Comparator.comparing(CandidateResponse::getCandidateScore, Comparator.nullsLast(Comparator.naturalOrder())).reversed();
+            }
+
+            List<CandidateResponse> sorted = candidates.stream().sorted(comparator).collect(Collectors.toList());
+
+            if (topN != null && topN > 0 && sorted.size() > topN) {
+                sorted = sorted.subList(0, topN);
+            }
+
+            return ResponseEntity.ok(sorted);
         } catch (IllegalStateException | NoSuchElementException e) {
             logger.warn("List applicants failed: {}", e.getMessage());
             return ResponseEntity.status(403).body(Map.of("error", e.getMessage()));
