@@ -1,4 +1,5 @@
 // java
+// File: `freelance/src/main/java/com/vencentdev/devmatch/service/ProjectService.java`
 package com.vencentdev.devmatch.service;
 
 import com.vencentdev.devmatch.controller.dto.ProjectRequest;
@@ -19,10 +20,12 @@ public class ProjectService {
     private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final BadgeService badgeService;
 
-    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository) {
+    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository, BadgeService badgeService) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
+        this.badgeService = badgeService;
     }
 
     public Project createProject(String username, ProjectRequest req) {
@@ -107,7 +110,21 @@ public class ProjectService {
 
     // allow external save (used when hiring)
     public Project saveProject(Project project) {
-        return projectRepository.save(project);
+        Project before = project.getId() == null ? null : projectRepository.findById(project.getId()).orElse(null);
+        Project saved = projectRepository.save(project);
+
+        // trigger badge evaluation when project becomes COMPLETED
+        boolean wasCompleted = before != null && before.getStatus() == Project.Status.COMPLETED;
+        boolean isCompleted = saved.getStatus() == Project.Status.COMPLETED;
+        if (!wasCompleted && isCompleted && saved.getHiredFreelancer() != null) {
+            try {
+                badgeService.evaluateBadgesForUser(saved.getHiredFreelancer().getId());
+            } catch (Exception e) {
+                logger.warn("Badge evaluation failed for user {}: {}", saved.getHiredFreelancer().getId(), e.getMessage());
+            }
+        }
+
+        return saved;
     }
 
     private User findUserByUsername(String username) {
