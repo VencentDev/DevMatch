@@ -22,16 +22,13 @@ import java.util.stream.Collectors;
 public class RecommendationService {
     private static final Logger logger = LoggerFactory.getLogger(RecommendationService.class);
 
-    // weights (sum to 1.0)
-    private static final double W_SKILL = 0.40;
+    private static final double W_SEMANTIC_SKILL = 0.60;
     private static final double W_BUDGET = 0.15;
     private static final double W_PAST = 0.20;
-    private static final double W_SEMANTIC = 0.25;
 
     private final ReviewRepository reviewRepo;
     private final ProjectRepository projectRepo;
     private final ApplicationRepository applicationRepo;
-    private final UserRepository userRepo;
     private final RestTemplate restTemplate;
 
     @Value("${app.semantic.ai.url:http://localhost:5000/semantic-skill-match}")
@@ -39,12 +36,12 @@ public class RecommendationService {
 
     public RecommendationService(ReviewRepository reviewRepo,
                                  ProjectRepository projectRepo,
-                                 ApplicationRepository applicationRepo,
-                                 UserRepository userRepo) {
+                                 ApplicationRepository applicationRepo
+                                 ) {
         this.reviewRepo = reviewRepo;
         this.projectRepo = projectRepo;
         this.applicationRepo = applicationRepo;
-        this.userRepo = userRepo;
+
         this.restTemplate = new RestTemplate();
     }
 
@@ -52,7 +49,7 @@ public class RecommendationService {
         Project project = projectRepo.findById(projectId)
                 .orElseThrow(() -> new NoSuchElementException("Project not found: " + projectId));
 
-        // use applicants for the project as candidate pool
+
         List<Application> apps = applicationRepo.findByProjectId(projectId);
         List<User> candidates = apps.stream().map(Application::getFreelancer).distinct().collect(Collectors.toList());
 
@@ -73,19 +70,14 @@ public class RecommendationService {
     }
 
     public CandidateScore scoreCandidate(User freelancer, Project project, Double proposedBudget) {
-        // skill match: exact overlap percent
+
         Set<String> projectSkills = Optional.ofNullable(project.getSkillsNeeded()).orElse(Collections.emptySet())
                 .stream().map(String::toLowerCase).collect(Collectors.toSet());
         Set<String> freelancerSkills = Optional.ofNullable(freelancer.getSkills()).orElse(Collections.emptySet())
                 .stream().map(String::toLowerCase).collect(Collectors.toSet());
 
-        double skillMatch = 0.0;
-        if (!projectSkills.isEmpty()) {
-            long overlap = projectSkills.stream().filter(freelancerSkills::contains).count();
-            skillMatch = (double) overlap / projectSkills.size();
-        }
 
-        // budget fit: 1.0 = perfect match, down to 0.0 for very far
+
         double budgetTarget = project.getBudget() == null ? 0.0 : project.getBudget();
         double proposed = proposedBudget == null ? budgetTarget : proposedBudget;
         double budgetFit = 0.0;
@@ -94,14 +86,13 @@ public class RecommendationService {
             budgetFit = 1.0 - Math.min(1.0, diff / Math.max(budgetTarget, proposed));
         }
 
-        // past performance: combine normalized rating and completed job ratio
-        double ratingScore = 0.5; // fallback neutral
+        double ratingScore = 0.5;
         var reviews = reviewRepo.findByRevieweeId(freelancer.getId());
         if (!reviews.isEmpty()) {
             double avg = reviews.stream().mapToInt(r -> r.getRating()).average().orElse(3.0);
-            ratingScore = (avg - 1.0) / 4.0; // map 1..5 -> 0..1
+            ratingScore = (avg - 1.0) / 4.0;
         }
-        // completion rate = completed projects / hired projects
+
         List<Project> hired = projectRepo.findAll().stream()
                 .filter(p -> p.getHiredFreelancer() != null && Objects.equals(p.getHiredFreelancer().getId(), freelancer.getId()))
                 .collect(Collectors.toList());
@@ -111,8 +102,7 @@ public class RecommendationService {
 
         double pastPerformance = 0.6 * ratingScore + 0.4 * completionRate;
 
-        // semantic match via external Python service
-        double semanticScore = 0.5; // neutral fallback
+        double semanticSkillScore = 0.5;
         try {
             Map<String, Object> payload = new HashMap<>();
             payload.put("project_skills", project.getSkillsNeeded());
@@ -121,24 +111,21 @@ public class RecommendationService {
             Map<String, Object> resp = restTemplate.postForObject(semanticUrl, payload, Map.class);
             if (resp != null && resp.containsKey("score")) {
                 Object val = resp.get("score");
-                if (val instanceof Number) semanticScore = ((Number) val).doubleValue();
+                if (val instanceof Number) semanticSkillScore = ((Number) val).doubleValue();
             }
         } catch (Exception e) {
             logger.warn("Semantic API call failed for freelancer {}: {}", freelancer.getId(), e.getMessage());
-            // fallback already set
         }
 
-        // combine weighted score
-        double finalScore = W_SKILL * skillMatch + W_BUDGET * budgetFit + W_PAST * pastPerformance + W_SEMANTIC * semanticScore;
+        double finalScore = W_SEMANTIC_SKILL * semanticSkillScore + W_BUDGET * budgetFit + W_PAST * pastPerformance;
 
         CandidateScore cs = new CandidateScore();
         cs.setFreelancerId(freelancer.getId());
         cs.setFreelancerUsername(freelancer.getUsername());
         cs.setScore(finalScore);
-        cs.setSkillMatch(skillMatch);
         cs.setBudgetFit(budgetFit);
         cs.setPastPerformance(pastPerformance);
-        cs.setSemanticMatch(semanticScore);
+        cs.setSemanticSkillMatch(semanticSkillScore);
         return cs;
     }
 }
