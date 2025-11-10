@@ -39,6 +39,7 @@ Key goals:
 | Layer | Technology |
 |--------|-------------|
 | **Backend** | Java Spring Boot |
+| **Ml API** | FastAPI python |
 | **Database** | PostgreSQL |
 | **Frontend (planned)** | React / Thymeleaf |
 | **ORM** | Hibernate / JPA |
