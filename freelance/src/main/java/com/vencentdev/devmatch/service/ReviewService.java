@@ -20,12 +20,14 @@ public class ReviewService {
     private final UserRepository userRepo;
     private final ProjectService projectService;
     private final EscrowRepository escrowRepo;
+    private final BadgeService badgeService;
 
-    public ReviewService(ReviewRepository reviewRepo, UserRepository userRepo, ProjectService projectService, EscrowRepository escrowRepo) {
+    public ReviewService(ReviewRepository reviewRepo, UserRepository userRepo, ProjectService projectService, EscrowRepository escrowRepo, BadgeService badgeService) {
         this.reviewRepo = reviewRepo;
         this.userRepo = userRepo;
         this.projectService = projectService;
         this.escrowRepo = escrowRepo;
+        this.badgeService =badgeService;
     }
 
     @Transactional
@@ -78,6 +80,11 @@ public class ReviewService {
         r.setComment(req.getComment());
         Review saved = reviewRepo.save(r);
 
+        try {
+            badgeService.evaluateBadgesForUser(reviewee.getId());
+        } catch (Exception ex) {
+            // ignore or log if logger available
+        }
         // if the other participant already left a review, mark project COMPLETED
         Long otherParticipantId = isOwner ? project.getHiredFreelancer().getId() : project.getOwner().getId();
         boolean otherReviewed = reviewRepo.findByReviewerIdAndProjectId(otherParticipantId, projectId).isPresent();

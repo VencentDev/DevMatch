@@ -1,3 +1,4 @@
+// java
 package com.vencentdev.devmatch.service;
 
 import com.vencentdev.devmatch.model.*;
@@ -15,9 +16,10 @@ public class EscrowService {
     private final EscrowRepository escrowRepo;
     private final WalletRepository walletRepo;
     private final TransactionRepository txRepo;
+    private final BadgeService badgeService;
 
-    public EscrowService(EscrowRepository escrowRepo, WalletRepository walletRepo, TransactionRepository txRepo) {
-        this.escrowRepo = escrowRepo; this.walletRepo = walletRepo; this.txRepo = txRepo;
+    public EscrowService(EscrowRepository escrowRepo, WalletRepository walletRepo, TransactionRepository txRepo, BadgeService badgeService) {
+        this.escrowRepo = escrowRepo; this.walletRepo = walletRepo; this.txRepo = txRepo; this.badgeService = badgeService;
     }
 
     @Transactional
@@ -59,6 +61,14 @@ public class EscrowService {
 
         // record transaction
         txRepo.save(new Transaction(freelancerWallet, escrow.getAmount(), Transaction.Type.ESCROW_RELEASE, escrow, "Released for project " + escrow.getProject().getId()));
+
+        // re-evaluate badges for the freelancer after successful release
+        try {
+            badgeService.evaluateBadgesForUser(escrow.getFreelancer().getId());
+        } catch (Exception e) {
+            // swallow any badge evaluation errors to avoid breaking the release flow
+            // logging can be added if desired
+        }
     }
 
     @Transactional
