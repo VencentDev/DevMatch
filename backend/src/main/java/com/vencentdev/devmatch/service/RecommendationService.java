@@ -22,9 +22,9 @@ import java.util.stream.Collectors;
 public class RecommendationService {
     private static final Logger logger = LoggerFactory.getLogger(RecommendationService.class);
 
-    private static final double W_SEMANTIC_SKILL = 0.60;
-    private static final double W_BUDGET = 0.15;
-    private static final double W_PAST = 0.20;
+    private static final double W_SEMANTIC_SKILL = 0.8;
+    private static final double W_BUDGET = 0.1;
+    private static final double W_PAST = 0.1;
 
     private final ReviewRepository reviewRepo;
     private final ProjectRepository projectRepo;
