@@ -64,7 +64,6 @@ public class ApplicationController {
                                               Authentication authentication) {
         String username = authentication.getName();
         try {
-            // ensure caller owns project (ApplicationService enforces access)
             List<Application> apps = applicationService.getApplicationsForProject(username, projectId);
             Project project = projectService.getById(projectId);
 
@@ -85,7 +84,6 @@ public class ApplicationController {
                     score = cs == null ? 0.0 : cs.getScore();
                 } catch (Exception e) {
                     logger.warn("Failed to score candidate {}: {}", a.getFreelancer() == null ? "null" : a.getFreelancer().getId(), e.getMessage());
-                    // fallback score remains 0.0
                 }
 
                 if (minScore != null && score < minScore) continue;
@@ -127,7 +125,7 @@ public class ApplicationController {
         }
     }
 
-    // New: hire endpoint
+
     @PostMapping("/{projectId}/applications/{applicationId}/hire")
     @PreAuthorize("hasAuthority('ROLE_CLIENT')")
     public ResponseEntity<?> hire(@PathVariable Long projectId,

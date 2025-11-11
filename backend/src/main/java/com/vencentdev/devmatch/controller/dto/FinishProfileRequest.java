@@ -6,16 +6,15 @@ import java.util.Set;
 
 public class FinishProfileRequest {
     private String role;
-    private String userType; // FREELANCER or CLIENT
+    private String userType;
 
-    // common profile fields
+
     private String fullName;
     private String country;
     private String address;
     private String phone;
     private String governmentIdUrl;
 
-    // freelancer-specific
     private String title;
     private Set<String> skills;
     private List<String> links;
@@ -23,7 +22,6 @@ public class FinishProfileRequest {
     private Set<String> education;
     private Set<String> certifications;
 
-    // client-specific
     private String industry;
     private String paymentMethod;
 

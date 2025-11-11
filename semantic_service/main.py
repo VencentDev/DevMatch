@@ -21,7 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# load model once
+
 model = SentenceTransformer("all-mpnet-base-v2")
 
 def semantic_skill_score(project_skills: List[str], freelancer_skills: List[str]) -> float:
@@ -31,11 +31,9 @@ def semantic_skill_score(project_skills: List[str], freelancer_skills: List[str]
         return 0.0
     emb_proj = model.encode(project_skills, convert_to_tensor=True)
     emb_free = model.encode(freelancer_skills, convert_to_tensor=True)
-    sims = util.cos_sim(emb_proj, emb_free)  # matrix
-    # per-project skill: max similarity to any freelancer skill
+    sims = util.cos_sim(emb_proj, emb_free)
     max_per_project = sims.max(dim=1).values.cpu().numpy()
     score = float(np.mean(max_per_project))
-    # normalize cosine (-1..1) -> (0..1)
     return max(0.0, min(1.0, (score + 1.0) / 2.0))
 
 @app.post("/semantic-skill-match")
