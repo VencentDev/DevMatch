@@ -81,14 +81,3 @@ spring.datasource.password=yourpassword
 # 3️⃣ Build and run the application
 mvn spring-boot:run
 
-
----
-
-### ✅ Tips for You
-- Replace `<your-username>` with your actual GitHub username.  
-- Add your **LinkedIn** or **portfolio link** in the author section.  
-- Once you start building, you can update the `Features`, `Setup`, and `Structure` sections with real screenshots or API routes.  
-
----
-
-Would you like me to also make a **`CONTRIBUTING.md`** file and a **`project board layout` (Kanban or milestones)** to organize your development next (e.g., MVP Phase 1 → core features, Phase 2 → chat + payments)?
