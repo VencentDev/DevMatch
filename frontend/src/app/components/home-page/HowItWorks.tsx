@@ -58,7 +58,7 @@ export default function HowItWorks(): React.ReactElement {
   const steps = isFreelancer ? freelancerSteps : clientSteps
 
   return (
-    <section className="py-10 px-4 md:px-8 lg:px-16 bg-black relative overflow-hidden">
+    <section className="py-4 px-4 md:px-8 lg:px-16 bg-black relative overflow-hidden">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
