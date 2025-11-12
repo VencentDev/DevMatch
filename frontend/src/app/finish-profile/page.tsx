@@ -21,7 +21,7 @@ export default function ProfileSetupPage(): React.ReactElement {
 	})
 
 	const countries = [
-		{ name: "United States", code: "+1" },
+		{ name: "United States", code: "+2" },
 		{ name: "Philippines", code: "+63" },
 		{ name: "Canada", code: "+1" },
 		{ name: "United Kingdom", code: "+44" },
