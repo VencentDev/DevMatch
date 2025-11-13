@@ -21,7 +21,7 @@ Key goals:
 ### 👥 User Roles
 - **Clients** – Post project requirements, review applicants, and manage project milestones.  
 - **Freelancers** – Apply to projects, communicate with clients, and deliver quality work.  
-- **Admin (optional)** – Oversee platform activities, handle reports, and manage payments.
+- **Admin** – Oversee platform activities, handle reports, and manage payments.
 
 ### 🚀 Core Functionalities
 - 🧾 **Project Posting:** Clients can create detailed project listings with budget and skill requirements.  
@@ -41,7 +41,7 @@ Key goals:
 | **Backend** | Java Spring Boot |
 | **Ml API** | FastAPI python |
 | **Database** | PostgreSQL |
-| **Frontend (planned)** | React / Thymeleaf |
+| **Frontend** | NextJs |
 | **ORM** | Hibernate / JPA |
 | **Build Tool** | Maven |
 | **Authentication** | Spring Security + JWT |
