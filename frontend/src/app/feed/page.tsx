@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 
 import { ArrowUpDown, TrendingUp, Clock, DollarSign } from "lucide-react"
-import FeedHeader from "../components/feed/feed-header"
+import FeedHeader from "../components/account-header"
 import ProjectCard from "../components/feed/project-card"
 import {
 	DropdownMenu,

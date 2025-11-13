@@ -15,7 +15,7 @@ import {
 	Briefcase,
 } from "lucide-react"
 
-export default function FeedHeader() {
+export default function AccountHeader() {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 	const [profileOpen, setProfileOpen] = useState(false)
 	const [theme, setTheme] = useState("dark")
