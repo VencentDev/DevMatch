@@ -58,16 +58,6 @@ export default function FeedHeader() {
 						</div>
 						<span className="hidden sm:inline">DevMatch</span>
 					</div>
-
-					{/* Desktop Icons */}
-					<div className="hidden md:flex items-center gap-4">
-						<button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-							<Mail
-								size={20}
-								className="text-white/70 hover:text-white"
-							/>
-						</button>
-					</div>
 				</div>
 
 				{/* Center Section - Search */}
@@ -97,6 +87,16 @@ export default function FeedHeader() {
 
 					{/* Desktop Icons */}
 					<div className="hidden md:flex items-center gap-3">
+						{/* Desktop Icons */}
+						<div className="hidden md:flex items-center gap-4">
+							<button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+								<Mail
+									size={20}
+									className="text-white/70 hover:text-white"
+								/>
+							</button>
+						</div>
+
 						<button className="p-2 hover:bg-white/10 rounded-lg transition-colors relative">
 							<Bell
 								size={20}
