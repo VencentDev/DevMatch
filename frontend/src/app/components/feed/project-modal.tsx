@@ -41,12 +41,16 @@ export function ProjectProposalModal({
 }: ProjectProposalModalProps) {
 	const [isOpen, setIsOpen] = useState(false)
 	const [submitted, setSubmitted] = useState(false)
+	const [proposalDescription, setProposalDescription] = useState("")
+	const [proposedBudget, setProposedBudget] = useState("")
 
 	const handleSubmitProposal = () => {
 		setSubmitted(true)
 		setTimeout(() => {
 			setIsOpen(false)
 			setSubmitted(false)
+			setProposalDescription("")
+			setProposedBudget("")
 		}, 2000)
 	}
 
@@ -57,7 +61,7 @@ export function ProjectProposalModal({
 		>
 			<DialogTrigger asChild>{trigger}</DialogTrigger>
 
-			<DialogContent className="w-full max-w-[80vw] sm:max-w-[50vw] p-0 gap-0 border-violet-500/30 overflow-hidden">
+			<DialogContent className="w-full max-w-[80vw] sm:max-w-[60vw] p-0 gap-0 border-violet-500/30 overflow-hidden">
 				<DialogTitle className="sr-only">Project Details</DialogTitle>
 
 				<div className="flex rounded-sm overflow-hidden h-[70vh] bg-black/50">
@@ -143,18 +147,8 @@ export function ProjectProposalModal({
 						</div>
 					</div>
 
-					{/* Right section - Submit button and activity */}
-					<div className="w-1/3 p-5 bg-black/80 border-l border-violet-500/20 flex flex-col items-start justify-start gap-8">
-						<Button
-							onClick={handleSubmitProposal}
-							className="w-full bg-violet-600 hover:bg-violet-700 text-white font-medium text-xs py-4 rounded-sm flex items-center justify-center gap-2 transition-colors mt-8"
-							disabled={submitted}
-						>
-							{" "}
-							{submitted ? "✓ Sent" : "Send Proposal"}{" "}
-							{!submitted && <Send size={14} />}
-						</Button>
-
+					{/* Right section - Proposal form and submit button */}
+					<div className="w-1/3 p-5 bg-black/80 border-l border-violet-500/20 flex flex-col items-start justify-start gap-4 overflow-y-auto">
 						<div className="w-full">
 							<h3 className="text-xs font-semibold text-white/80 uppercase tracking-wide mb-3">
 								Proposals Submitted
@@ -169,6 +163,45 @@ export function ProjectProposalModal({
 								</span>
 							</div>
 						</div>
+
+						<div className="w-full space-y-3">
+							<div>
+								<label className="text-xs font-semibold text-white/80 uppercase tracking-wide mb-1.5 block">
+									Proposal
+								</label>
+								<textarea
+									value={proposalDescription}
+									onChange={(e) => setProposalDescription(e.target.value)}
+									placeholder="Describe your proposal..."
+									className="w-full bg-black/60 border border-violet-500/30 rounded-sm px-2 py-1.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 resize-none"
+									rows={3}
+								/>
+							</div>
+
+							<div>
+								<label className="text-xs font-semibold text-white/80 uppercase tracking-wide mb-1.5 block">
+									Proposed Budget
+								</label>
+								<div className="flex items-center">
+									<input
+										type="number"
+										value={proposedBudget}
+										onChange={(e) => setProposedBudget(e.target.value)}
+										placeholder="Enter budget"
+										className="w-full min-w-0 bg-black/60 border border-violet-500/30 rounded-sm px-2 py-1.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30"
+									/>
+								</div>
+							</div>
+						</div>
+
+						<Button
+							onClick={handleSubmitProposal}
+							className="w-full bg-violet-600 hover:bg-violet-700 text-white font-medium text-xs py-4 rounded-sm flex items-center justify-center gap-2 transition-colors mt-2"
+							disabled={submitted}
+						>
+							{submitted ? "✓ Sent" : "Send Proposal"}
+							{!submitted && <Send size={14} />}
+						</Button>
 					</div>
 				</div>
 			</DialogContent>
