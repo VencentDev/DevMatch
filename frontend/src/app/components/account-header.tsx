@@ -49,12 +49,15 @@ export default function AccountHeader() {
 			<div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
 				{/* Left Section - Logo */}
 				<div className="flex items-center gap-6 min-w-fit">
+          <a href="/feed">
 					<div className="flex items-center gap-2 font-bold text-xl text-white">
+            
 						<div className="w-8 h-8 bg-linear-to-br from-violet-500 to-violet-700 rounded-lg flex items-center justify-center text-white text-sm font-bold">
-							D
+							DM
 						</div>
 						<span className="hidden sm:inline">DevMatch</span>
 					</div>
+          </a>
 				</div>
 
 				{/* Center Section - Search */}
@@ -126,15 +129,19 @@ export default function AccountHeader() {
 										<span>Profile</span>
 									</button>
 
-									<button className="w-full px-4 py-2 flex items-center justify-between text-white/70 hover:text-white hover:bg-white/5 transition-colors text-sm group">
-										<div className="flex items-center gap-3">
-											<Briefcase size={16} />
-											<span>Active Projects</span>
-										</div>
-										<span className="bg-violet-500/20 text-violet-300 px-2 py-0.5 rounded text-xs font-semibold group-hover:bg-violet-500/30 transition-colors">
+									<a
+										href="/active-projects"
+										className="w-full px-4 py-2 flex items-center gap-3 text-white/70 hover:text-white hover:bg-white/5 transition-colors text-sm"
+									>
+										<Briefcase size={16} />
+										<span>Active Projects</span>
+                    <span className="bg-violet-500/20 text-violet-300 px-2 py-0.5 rounded text-xs font-semibold group-hover:bg-violet-500/30 transition-colors">
 											5
 										</span>
-									</button>
+									</a>
+
+										
+
 
 									<a
 										href="/proposals"
