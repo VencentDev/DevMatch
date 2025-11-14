@@ -36,175 +36,177 @@ interface ProjectProposalModalProps {
 }
 
 export function ProjectProposalModal({
-	project,
-	trigger,
+  project,
+  trigger,
 }: ProjectProposalModalProps) {
-	const [isOpen, setIsOpen] = useState(false)
-	const [submitted, setSubmitted] = useState(false)
-	const [proposalDescription, setProposalDescription] = useState("")
-	const [proposedBudget, setProposedBudget] = useState("")
+  const [isOpen, setIsOpen] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [proposalDescription, setProposalDescription] = useState("")
+  const [proposedBudget, setProposedBudget] = useState("")
 
-	const handleSubmitProposal = () => {
-		setSubmitted(true)
-		setTimeout(() => {
-			setIsOpen(false)
-			setSubmitted(false)
-			setProposalDescription("")
-			setProposedBudget("")
-		}, 2000)
-	}
+  const handleSubmitProposal = () => {
+    setSubmitted(true)
+    setTimeout(() => {
+      setIsOpen(false)
+      setSubmitted(false)
+      setProposalDescription("")
+      setProposedBudget("")
+    }, 2000)
+  }
 
-	return (
-		<Dialog
-			open={isOpen}
-			onOpenChange={setIsOpen}
-		>
-			<DialogTrigger asChild>{trigger}</DialogTrigger>
+  return (
+    <Dialog
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
 
-			<DialogContent className="w-full max-w-[80vw] sm:max-w-[60vw] p-0 gap-0 border-violet-500/30 overflow-hidden">
-				<DialogTitle className="sr-only">Project Details</DialogTitle>
+      <DialogContent className="w-full max-w-[80vw] sm:max-w-[60vw] p-0 gap-0 border-violet-500/30 overflow-hidden">
+        <DialogTitle className="sr-only">Project Details</DialogTitle>
 
-				<div className="flex rounded-sm overflow-hidden h-[70vh] bg-black/50">
-					{/* Left section - Project details with scrolling */}
-					<div className="w-2/3 p-6 border-r border-violet-500/20 overflow-y-auto bg-black">
-						<div className="space-y-5">
-							<div>
-								<div className="flex items-center gap-1.5 text-violet-400/60 text-xs mb-1">
-									<Mail size={12} />
-									<span className="uppercase tracking-wide font-semibold">
-										Owner Email
-									</span>
-								</div>
-								<p className="text-xs font-medium text-white/80">
-									{project.ownerEmail}
-								</p>
-							</div>
+        <div className="flex rounded-sm overflow-hidden h-[70vh] bg-black/50">
+          {/* Left section - Project details with scrolling */}
+          <div className="w-2/3 p-6 border-r border-violet-500/20 overflow-y-auto bg-black">
+            <div className="space-y-5">
+              <div>
+                <div className="flex items-center gap-1.5 text-violet-400/60 text-xs mb-1">
+                  <Mail size={12} />
+                  <span className="uppercase tracking-wide font-semibold">
+                    Owner Email
+                  </span>
+                </div>
+                <p className="text-xs font-medium text-white/80">
+                  {project.ownerEmail}
+                </p>
+              </div>
 
-							<div>
-								<h2 className="text-lg font-bold text-white leading-tight">
-									{project.title}
-								</h2>
-							</div>
+              <div>
+                <h2 className="text-lg font-bold text-white leading-tight">
+                  {project.title}
+                </h2>
+              </div>
 
-							<div>
-								<h3 className="text-xs font-semibold text-white/80 uppercase tracking-wide mb-2">
-									Description
-								</h3>
-								<p className="text-xs text-white/60 leading-relaxed">
-									{project.description}
-								</p>
-							</div>
+              <div>
+                <h3 className="text-xs font-semibold text-white/80 uppercase tracking-wide mb-2">
+                  Description
+                </h3>
+                <p className="text-xs text-white/60 leading-relaxed">
+                  {project.description}
+                </p>
+              </div>
 
-							<div>
-								<div className="flex items-center gap-1.5 text-xs font-semibold text-white/80 mb-2">
-									<DollarSign
-										size={12}
-										className="text-violet-400"
-									/>
-									<span>Budget</span>
-								</div>
-								<p className="text-sm font-bold text-violet-400">
-									${project.budget.toLocaleString()}
-								</p>
-							</div>
+              <div>
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-white/80 mb-2">
+                  <DollarSign
+                    size={12}
+                    className="text-violet-400"
+                  />
+                  <span>Budget</span>
+                </div>
+                <p className="text-sm font-bold text-violet-400">
+                  ${project.budget.toLocaleString()}
+                </p>
+              </div>
 
-							<div>
-								<div className="flex items-center gap-1.5 text-xs font-semibold text-white/80 mb-2">
-									<Tag
-										size={12}
-										className="text-violet-400"
-									/>
-									<span>Skills Needed</span>
-								</div>
-								<div className="flex flex-wrap gap-2">
-									{project.skillsNeeded.map((skill) => (
-										<span
-											key={skill}
-											className="px-2.5 py-1 bg-violet-500/15 text-violet-300 text-xs font-medium rounded-sm border border-violet-500/30 hover:bg-violet-500/25 transition-colors"
-										>
-											{skill}
-										</span>
-									))}
-								</div>
-							</div>
+              <div>
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-white/80 mb-2">
+                  <Tag
+                    size={12}
+                    className="text-violet-400"
+                  />
+                  <span>Skills Needed</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {project.skillsNeeded.map((skill) => (
+                    <span
+                      key={skill}
+                      className="px-2.5 py-1 bg-violet-500/15 text-violet-300 text-xs font-medium rounded-sm border border-violet-500/30 hover:bg-violet-500/25 transition-colors"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
 
-							<div>
-								<div className="flex items-center gap-1.5 text-xs font-semibold text-white/80 mb-2">
-									<Calendar
-										size={12}
-										className="text-violet-400"
-									/>
-									<span>Deadline</span>
-								</div>
-								<p className="text-xs font-medium text-white/80">
-									{new Date(project.deadline).toLocaleDateString("en-US", {
-										year: "numeric",
-										month: "short",
-										day: "numeric",
-									})}
-								</p>
-							</div>
-						</div>
-					</div>
+              <div>
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-white/80 mb-2">
+                  <Calendar
+                    size={12}
+                    className="text-violet-400"
+                  />
+                  <span>Deadline</span>
+                </div>
+                <p className="text-xs font-medium text-white/80">
+                  {new Date(project.deadline).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </p>
+              </div>
+            </div>
+          </div>
 
-					{/* Right section - Proposal form and submit button */}
-					<div className="w-1/3 p-5 bg-black/80 border-l border-violet-500/20 flex flex-col items-start justify-start gap-4 overflow-y-auto">
-						<div className="w-full">
-							<h3 className="text-xs font-semibold text-white/80 uppercase tracking-wide mb-3">
-								Proposals Submitted
-							</h3>
-							<div className="flex items-center justify-between gap-3 bg-violet-600/20 px-3 py-2 rounded-sm border border-violet-500/30">
-								<ChartNoAxesCombined
-									size={14}
-									className="text-violet-400 shrink-0"
-								/>
-								<span className="text-sm font-bold text-violet-400 ml-auto">
-									{project.proposalsCount}
-								</span>
-							</div>
-						</div>
+          {/* Right section - Proposal form and submit button */}
+          <div className="w-1/3 p-5 bg-black/80 border-l border-violet-500/20 flex flex-col items-start justify-start gap-4 overflow-y-auto">
+            <div className="w-full">
+              <h3 className="text-xs font-semibold text-white/80 uppercase tracking-wide mb-3">
+                Proposals Submitted
+              </h3>
+              <div className="flex items-center justify-between gap-3 bg-violet-600/20 px-3 py-2 rounded-sm border border-violet-500/30">
+                <ChartNoAxesCombined
+                  size={14}
+                  className="text-violet-400 shrink-0"
+                />
+                <span className="text-sm font-bold text-violet-400 ml-auto">
+                  {project.proposalsCount}
+                </span>
+              </div>
+            </div>
 
-						<div className="w-full space-y-3">
-							<div>
-								<label className="text-xs font-semibold text-white/80 uppercase tracking-wide mb-1.5 block">
-									Proposal
-								</label>
-								<textarea
-									value={proposalDescription}
-									onChange={(e) => setProposalDescription(e.target.value)}
-									placeholder="Describe your proposal..."
-									className="w-full bg-black/60 border border-violet-500/30 rounded-sm px-2 py-1.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 resize-none"
-									rows={3}
-								/>
-							</div>
+            <div className="w-full space-y-3">
+              <div>
+                <label className="text-xs font-semibold text-white/80 uppercase tracking-wide mb-1.5 block">
+                  Proposal
+                </label>
+                <textarea
+                  value={proposalDescription}
+                  onChange={(e) => setProposalDescription(e.target.value)}
+                  placeholder="Describe your proposal..."
+                  className="w-full bg-black/60 border border-violet-500/30 rounded-sm px-2 py-1.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30 resize-none"
+                  rows={3}
+                  required
+                />
+              </div>
 
-							<div>
-								<label className="text-xs font-semibold text-white/80 uppercase tracking-wide mb-1.5 block">
-									Proposed Budget
-								</label>
-								<div className="flex items-center">
-									<input
-										type="number"
-										value={proposedBudget}
-										onChange={(e) => setProposedBudget(e.target.value)}
-										placeholder="Enter budget"
-										className="w-full min-w-0 bg-black/60 border border-violet-500/30 rounded-sm px-2 py-1.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30"
-									/>
-								</div>
-							</div>
-						</div>
+              <div>
+                <label className="text-xs font-semibold text-white/80 uppercase tracking-wide mb-1.5 block">
+                  Proposed Budget
+                </label>
+                <div className="flex items-center">
+                  <input
+                    type="number"
+                    value={proposedBudget}
+                    onChange={(e) => setProposedBudget(e.target.value)}
+                    placeholder="Enter budget"
+                    className="w-full min-w-0 bg-black/60 border border-violet-500/30 rounded-sm px-2 py-1.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-violet-500/60 focus:ring-1 focus:ring-violet-500/30"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
 
-						<Button
-							onClick={handleSubmitProposal}
-							className="w-full bg-violet-600 hover:bg-violet-700 text-white font-medium text-xs py-4 rounded-sm flex items-center justify-center gap-2 transition-colors mt-2"
-							disabled={submitted}
-						>
-							{submitted ? "✓ Sent" : "Send Proposal"}
-							{!submitted && <Send size={14} />}
-						</Button>
-					</div>
-				</div>
-			</DialogContent>
-		</Dialog>
-	)
+            <Button
+              onClick={handleSubmitProposal}
+              className="w-full bg-violet-600 hover:bg-violet-700 text-white font-medium text-xs py-4 rounded-sm flex items-center justify-center gap-2 transition-colors mt-2"
+              disabled={submitted || !proposalDescription.trim() || !proposedBudget.trim()}
+            >
+              {submitted ? "✓ Sent" : "Send Proposal"}
+              {!submitted && <Send size={14} />}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
 }
