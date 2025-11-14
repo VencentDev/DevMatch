@@ -154,7 +154,7 @@ export default function ChatWindow({
 						onChange={(e) => setMessageInput(e.target.value)}
 						onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
 						placeholder="Type your message..."
-						className="flex-1 bg-white/5 border border-violet-500/20 rounded-lg px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:border-violet-500/50 focus:bg-white/10 transition-all"
+						className="w-full max-w-xs sm:max-w-md md:max-w-lg flex-1 bg-white/5 border border-violet-500/20 rounded-lg px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:border-violet-500/50 focus:bg-white/10 transition-all"
 					/>
 
 					{/* Send Button */}
