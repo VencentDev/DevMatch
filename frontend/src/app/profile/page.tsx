@@ -1,13 +1,15 @@
 "use client"
 
+import { useState } from "react"
+import { Pencil, Plus, X, Star } from 'lucide-react'
 import AccountHeader from "@/app/components/account-header"
 import ProfileSidebar from "@/app/components/profile/profile-sidebar"
 import ProfileHeader from "@/app/components/profile/profile-header"
 import ProfileAbout from "@/app/components/profile/profile-about"
-import SkillsSection from "@/app/components/profile/skills-section"
-import EducationSection from "@/app/components/profile/education-section"
-import CertificationsSection from "@/app/components/profile/certifications-section"
-import ExperienceSection from "@/app/components/profile/experience-section"
+import SkillsSection from "@/app/components/profile/skills/skills-section"
+import EducationSection from "@/app/components/profile/education/education-section"
+import CertificationsSection from "@/app/components/profile/certification/certifications-section"
+import ExperienceSection from "@/app/components/profile/experience/experience-section"
 
 export default function ProfilePage() {
 	return (
@@ -25,11 +27,10 @@ export default function ProfilePage() {
 						{/* Profile Header with Cover and Avatar */}
 						<ProfileHeader />
 
-						{/* About Section */}
-						<ProfileAbout />
-
-						{/* Skills Section */}
-						<SkillsSection />
+						<div className="grid grid-cols-2 gap-6">
+							<ProfileAbout />
+							<SkillsSection />
+						</div>
 
 						{/* Experience Section */}
 						<ExperienceSection />

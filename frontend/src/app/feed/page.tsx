@@ -86,7 +86,7 @@ const MOCK_PROJECTS = [
 ]
 export default function FeedPage() {
 	type SortKey = "best-matches" | "recent" | "budget-low" | "budget-high"
-	const [projects, setProjects] = useState(MOCK_PROJECTS)
+	const [projects] = useState(MOCK_PROJECTS)
 	const [isVisible, setIsVisible] = useState(false)
 	const [sortBy, setSortBy] = useState<SortKey>("recent")
 
