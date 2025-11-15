@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, JSX } from "react"
 
-import { ArrowUpDown, TrendingUp, Clock, DollarSign } from "lucide-react"
+import { TrendingUp, Clock, DollarSign, ArrowDown, ArrowUp } from "lucide-react"
 import FeedHeader from "../components/account-header"
 import ProjectCard from "../components/feed/project-card"
 import {
@@ -26,6 +26,7 @@ const MOCK_PROJECTS = [
 		skills: ["React", "TypeScript", "Chart.js", "Tailwind CSS"],
 		deadline: "Due in 2 weeks",
 		postedBy: "TechStartup Inc.",
+		createdAt: "2025-06-01",
 	},
 	{
 		id: "2",
@@ -36,6 +37,7 @@ const MOCK_PROJECTS = [
 		skills: ["Figma", "UI Design", "UX Research", "Mobile Design"],
 		deadline: "Due in 3 weeks",
 		postedBy: "Digital Agency",
+		createdAt: "2024-08-03",
 	},
 	{
 		id: "3",
@@ -46,6 +48,7 @@ const MOCK_PROJECTS = [
 		skills: ["Node.js", "Express", "MongoDB", "AWS"],
 		deadline: "Due in 1 month",
 		postedBy: "E-commerce Co.",
+		createdAt: "2023-06-01",
 	},
 	{
 		id: "4",
@@ -56,6 +59,7 @@ const MOCK_PROJECTS = [
 		skills: ["Next.js", "React", "SEO", "Performance Optimization"],
 		deadline: "Due in 2 weeks",
 		postedBy: "Consulting Firm",
+		createdAt: "2024-06-01",
 	},
 	{
 		id: "5",
@@ -66,6 +70,7 @@ const MOCK_PROJECTS = [
 		skills: ["PostgreSQL", "AWS", "Database Design", "DevOps"],
 		deadline: "Due in 1 month",
 		postedBy: "Enterprise Solutions",
+		createdAt: "2022-06-01",
 	},
 	{
 		id: "6",
@@ -76,13 +81,14 @@ const MOCK_PROJECTS = [
 		skills: ["React", "Node.js", "Socket.io", "MongoDB"],
 		deadline: "Due in 3 weeks",
 		postedBy: "SaaS Startup",
+		createdAt: "2021-06-01",
 	},
 ]
-
 export default function FeedPage() {
+	type SortKey = "best-matches" | "recent" | "budget-low" | "budget-high"
 	const [projects, setProjects] = useState(MOCK_PROJECTS)
 	const [isVisible, setIsVisible] = useState(false)
-	const [sortBy, setSortBy] = useState<string>("recent")
+	const [sortBy, setSortBy] = useState<SortKey>("recent")
 
 	useEffect(() => {
 		const raf = requestAnimationFrame(() => setIsVisible(true))
@@ -95,17 +101,36 @@ export default function FeedPage() {
 		if (sortBy === "best-matches") {
 			return sorted.sort((a, b) => a.title.localeCompare(b.title))
 		} else if (sortBy === "recent") {
-			return sorted
+			return sorted.sort(
+				(a, b) =>
+					new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+			)
 		} else if (sortBy === "budget-low") {
-			return sorted.sort((a, b) => a.budget - b.budget) // Ascending order
+			return sorted.sort((a, b) => a.budget - b.budget)
 		} else if (sortBy === "budget-high") {
-			return sorted.sort((a, b) => b.budget - a.budget) // Descending order
+			return sorted.sort((a, b) => b.budget - a.budget) 
 		}
 		return sorted
 	}
 
 	const sortedProjects = getSortedProjects()
+	// Mapping for sort button display
+	const sortDisplay: Record<SortKey, string | JSX.Element> = {
+		"best-matches": "Best Matches",
+		"recent": "Sort",
+		"budget-low": (
+			<>
+				Budget <ArrowDown className="w-4 h-4" />
+			</>
+		),
+		"budget-high": (
+			<>
+				Budget <ArrowUp className="w-4 h-4" />
+			</>
+		),
+	}
 
+	
 	return (
 		<main className="bg-black text-white min-h-screen">
 			<FeedHeader />
@@ -124,8 +149,7 @@ export default function FeedPage() {
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<button className="px-3 py-1 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/50 rounded-sm text-violet-400 text-sm font-medium transition-all flex items-center gap-2">
-									<ArrowUpDown className="w-4 h-4" />
-									Sort
+									{sortDisplay[sortBy]}
 								</button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent
