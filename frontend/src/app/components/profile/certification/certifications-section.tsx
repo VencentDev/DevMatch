@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, X, Star } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import CertificationModal from "./certification-modal"
 
 interface Certification {
@@ -28,7 +28,6 @@ export default function CertificationsSection() {
 		},
 	])
 	const [isModalOpen, setIsModalOpen] = useState(false)
-	const averageRating = 4.8
 
 	const removeCertification = (id: string) => {
 		setCertifications(certifications.filter((cert) => cert.id !== id))
@@ -44,18 +43,12 @@ export default function CertificationsSection() {
 
 	return (
 		<>
-			<div className="bg-gradient-to-br from-violet-600/10 to-violet-600/5 rounded-lg p-6">
+			<div className="bg-linear-to-br from-violet-600/10 to-violet-600/5 rounded-sm p-6">
 				<div className="flex items-center justify-between mb-6">
-					<div className="flex items-center gap-2">
-						<h2 className="text-xl font-bold text-white">Certifications</h2>
-						<div className="flex items-center gap-1 bg-violet-600/20 rounded-full px-2 py-1">
-							<Star size={14} className="text-yellow-400 fill-yellow-400" />
-							<span className="text-xs font-semibold text-white">{averageRating}</span>
-						</div>
-					</div>
+					<h2 className="text-xl font-bold text-white">Certifications</h2>
 					<button
 						onClick={() => setIsModalOpen(true)}
-						className="flex items-center gap-2 p-2 hover:bg-violet-500/20 rounded-lg transition-colors text-white/60 hover:text-white"
+						className="flex items-center gap-2 p-2 hover:bg-violet-500/20 rounded-sm transition-colors text-white/60 hover:text-white"
 					>
 						<Plus size={18} />
 					</button>
@@ -65,7 +58,7 @@ export default function CertificationsSection() {
 					{certifications.map((cert) => (
 						<div
 							key={cert.id}
-							className="p-4 bg-black/20 rounded-lg hover:bg-black/30 transition-colors"
+							className="p-4 bg-black/20 rounded-sm hover:bg-black/30 transition-colors"
 						>
 							<div className="flex items-start justify-between mb-2">
 								<h3 className="font-semibold text-white text-sm flex-1">
