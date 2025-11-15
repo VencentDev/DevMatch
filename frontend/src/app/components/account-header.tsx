@@ -85,13 +85,6 @@ export default function AccountHeader() {
 						/>
 					</button>
 
-					<button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-						<Mail
-							size={20}
-							className="text-white/70 hover:text-white"
-						/>
-					</button>
-
 					{/* Notifications */}
 					<button className="p-2 hover:bg-white/10 rounded-lg transition-colors relative">
 						<Bell
