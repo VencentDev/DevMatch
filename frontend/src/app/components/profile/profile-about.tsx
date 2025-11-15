@@ -10,12 +10,12 @@ export default function ProfileAbout() {
 	)
 
 	return (
-		<div className="bg-card border border-border rounded-xl p-6">
+		<div className="bg-black/40 border border-violet-500/20 rounded-lg p-6">
 			<div className="flex items-center justify-between mb-4">
-				<h2 className="text-xl font-bold text-foreground">About</h2>
+				<h2 className="text-xl font-bold text-white">About</h2>
 				<button
 					onClick={() => setIsEditing(!isEditing)}
-					className="p-2 hover:bg-white/10 rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+					className="p-2 hover:bg-violet-500/20 rounded-lg transition-colors text-white/60 hover:text-white"
 				>
 					<Edit size={18} />
 				</button>
@@ -26,26 +26,26 @@ export default function ProfileAbout() {
 					<textarea
 						value={bio}
 						onChange={(e) => setBio(e.target.value)}
-						className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:border-primary focus:outline-none transition-colors text-foreground placeholder-muted-foreground resize-none h-28"
+						className="w-full px-4 py-3 bg-black/60 border border-violet-500/20 rounded-lg focus:border-violet-500/50 focus:outline-none transition-colors text-white placeholder-white/40 resize-none h-28"
 						placeholder="Tell us about yourself..."
 					/>
 					<div className="flex gap-2">
 						<button
 							onClick={() => setIsEditing(false)}
-							className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors font-medium"
+							className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-colors font-medium"
 						>
 							Save
 						</button>
 						<button
 							onClick={() => setIsEditing(false)}
-							className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-border rounded-lg transition-colors font-medium text-foreground"
+							className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-violet-500/20 rounded-lg transition-colors font-medium text-white/80"
 						>
 							Cancel
 						</button>
 					</div>
 				</div>
 			) : (
-				<p className="text-muted-foreground leading-relaxed">{bio}</p>
+				<p className="text-white/70 leading-relaxed">{bio}</p>
 			)}
 		</div>
 	)
