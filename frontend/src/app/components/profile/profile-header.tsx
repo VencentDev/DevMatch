@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import { Camera, Edit } from 'lucide-react'
 
 export default function ProfileHeader() {
