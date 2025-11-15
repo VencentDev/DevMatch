@@ -11,9 +11,19 @@ interface ProjectCardProps {
   skills: string[]
   deadline: string
   postedBy?: string
+  createdAt: string // Add createdAt field
 }
 
-export default function ProjectCard({ id, title, description, budget, skills, deadline, postedBy }: ProjectCardProps) {
+export default function ProjectCard({
+  id,
+  title,
+  description,
+  budget,
+  skills,
+  deadline,
+  postedBy,
+  createdAt, // Destructure createdAt
+}: ProjectCardProps) {
   const mockProject = {
     id,
     ownerEmail: "contact@example.com",
@@ -24,6 +34,44 @@ export default function ProjectCard({ id, title, description, budget, skills, de
     deadline: "2025-12-31",
     proposalsCount: 12,
   }
+
+const getRelativeTime = (dateString: string): string => {
+  const createdAt = new Date(dateString)
+  const now = new Date()
+
+  // Calculate the difference in milliseconds
+  const diffInMilliseconds = now.getTime() - createdAt.getTime()
+
+  // Handle future dates
+  if (diffInMilliseconds < 0) {
+    return "Just now"
+  }
+
+
+  const diffInSeconds = Math.floor(diffInMilliseconds / 1000)
+  const diffInMinutes = Math.floor(diffInSeconds / 60)
+  const diffInHours = Math.floor(diffInMinutes / 60)
+  const diffInDays = Math.floor(diffInHours / 24)
+  const diffInWeeks = Math.floor(diffInDays / 7)
+  const diffInMonths = Math.floor(diffInDays / 30)
+  const diffInYears = Math.floor(diffInDays / 365)
+
+  if (diffInYears > 0) {
+    return `${diffInYears} year${diffInYears === 1 ? "" : "s"} ago`
+  } else if (diffInMonths > 0) {
+    return `${diffInMonths} month${diffInMonths === 1 ? "" : "s"} ago`
+  } else if (diffInWeeks > 0) {
+    return `${diffInWeeks} week${diffInWeeks === 1 ? "" : "s"} ago`
+  } else if (diffInDays > 0) {
+    return `${diffInDays} day${diffInDays === 1 ? "" : "s"} ago`
+  } else if (diffInHours > 0) {
+    return `${diffInHours} hour${diffInHours === 1 ? "" : "s"} ago`
+  } else if (diffInMinutes > 0) {
+    return `${diffInMinutes} minute${diffInMinutes === 1 ? "" : "s"} ago`
+  } else {
+    return "Just now"
+  }
+}
 
   return (
     <ProjectProposalModal
@@ -81,9 +129,9 @@ export default function ProjectCard({ id, title, description, budget, skills, de
                   <span className="line-clamp-1">{postedBy || "Project"}</span>
                 </div>
               </div>
-              <button className="px-3 py-1 bg-violet-500/20 text-violet-300 rounded text-xs font-medium border border-violet-500/30 hover:bg-violet-500/30 hover:border-violet-500/50 transition-all">
-                View
-              </button>
+              <div className="text-xs text-white/50">
+                {getRelativeTime(createdAt)}
+              </div>
             </div>
           </div>
         </div>
