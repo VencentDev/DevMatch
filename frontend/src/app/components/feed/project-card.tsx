@@ -7,7 +7,7 @@ interface ProjectCardProps {
   id: string
   title: string
   description: string
-  budget: string
+  budget: number
   skills: string[]
   deadline: string
   postedBy?: string
@@ -19,7 +19,7 @@ export default function ProjectCard({ id, title, description, budget, skills, de
     ownerEmail: "contact@example.com",
     title,
     description,
-    budget: Number.parseInt(budget.replace(/[^0-9]/g, "")) || 0,
+    budget,
     skillsNeeded: skills,
     deadline: "2025-12-31",
     proposalsCount: 12,
