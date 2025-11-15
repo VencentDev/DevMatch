@@ -1,8 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
-import { User, Award, Wallet, Settings, FileText, LogOut } from "lucide-react"
+import { User, Award, Wallet, Settings, FileText} from 'lucide-react'
 
 export default function ProfileSidebar() {
 	const [activeTab, setActiveTab] = useState("profile")
@@ -16,8 +15,8 @@ export default function ProfileSidebar() {
 	]
 
 	return (
-		<div className="fixed left-0 w-64 h-screen px-6 overflow-y-auto">
-			<div className="sticky md:sticky bg-violet-500/20 border border-white/10 rounded-lg p-6 backdrop-blur-sm space-y-6">
+		<div className="fixed left-0 top-20 w-64 h-[calc(100vh-80px)] px-6 py-8 overflow-y-auto">
+			<div className="sticky md:sticky bg-violet-500/20 backdrop-blur-xl border border-violet-500/20 rounded-sm p-6 space-y-6">
 				{/* User Info Card */}
 				<div className="pb-6 border-b border-white/10">
 					<div className="w-12 h-12 bg-linear-to-br from-violet-500 to-violet-700 rounded-full flex items-center justify-center text-white font-bold mb-3">
@@ -37,7 +36,7 @@ export default function ProfileSidebar() {
 							<button
 								key={item.id}
 								onClick={() => setActiveTab(item.id)}
-								className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+								className={`w-full flex items-center gap-3 px-4 py-3 rounded-sm transition-all ${
 									isActive
 										? "bg-violet-500/20 text-violet-300 border border-violet-500/30"
 										: "text-white/60 hover:bg-white/5"

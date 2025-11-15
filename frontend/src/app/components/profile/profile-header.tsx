@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Camera, Edit } from 'lucide-react'
+import Image from "next/image"
+import { Camera, Edit, Star } from 'lucide-react'
 
 export default function ProfileHeader() {
 	const [isEditing, setIsEditing] = useState(false)
@@ -37,14 +38,20 @@ export default function ProfileHeader() {
 								Pro
 							</span>
 						</div>
-						<p className="text-lg text-white/60">Senior Frontend Developer</p>
+						<div className="flex items-center gap-2">
+							<p className="text-lg text-white/60">Senior Frontend Developer</p>
+							<div className="flex items-center gap-1 bg-violet-600/20 rounded-full px-2 py-1">
+								<Star size={14} className="text-yellow-400 fill-yellow-400" />
+								<span className="text-xs font-semibold text-white">4.8</span>
+							</div>
+						</div>
 					</div>
 				</div>
 
 				{/* Edit Button */}
 				<button
 					onClick={() => setIsEditing(!isEditing)}
-					className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-colors font-medium"
+					className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-sm transition-colors font-medium"
 				>
 					<Edit size={16} />
 					Edit Profile

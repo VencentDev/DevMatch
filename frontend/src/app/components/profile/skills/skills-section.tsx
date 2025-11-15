@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Pencil, Plus, X, Star } from 'lucide-react'
+import { Pencil, X } from "lucide-react"
 import SkillsModal from "./skills-modal"
 
 interface Skill {
@@ -18,7 +18,6 @@ export default function SkillsSection() {
 		{ id: "5", name: "Tailwind CSS" },
 	])
 	const [isModalOpen, setIsModalOpen] = useState(false)
-	const averageRating = 4.6
 
 	const removeSkill = (id: string) => {
 		setSkills(skills.filter((skill) => skill.id !== id))
@@ -34,18 +33,14 @@ export default function SkillsSection() {
 
 	return (
 		<>
-			<div className="bg-gradient-to-br from-violet-600/10 to-violet-600/5 rounded-lg p-6">
+			<div className="bg-linear-to-br from-violet-600/10 to-violet-600/5 rounded-sm p-6">
 				<div className="flex items-center justify-between mb-4">
 					<div className="flex items-center gap-2">
 						<h2 className="text-xl font-bold text-white">Skills</h2>
-						<div className="flex items-center gap-1 bg-violet-600/20 rounded-full px-2 py-1">
-							<Star size={14} className="text-yellow-400 fill-yellow-400" />
-							<span className="text-xs font-semibold text-white">{averageRating}</span>
-						</div>
 					</div>
 					<button
 						onClick={() => setIsModalOpen(true)}
-						className="p-2 hover:bg-violet-500/20 rounded-lg transition-colors text-white/60 hover:text-white"
+						className="p-2 hover:bg-violet-500/20 rounded-sm transition-colors text-white/60 hover:text-white"
 					>
 						<Pencil size={18} />
 					</button>
@@ -57,7 +52,9 @@ export default function SkillsSection() {
 							key={skill.id}
 							className="flex items-center gap-2 bg-violet-600/20 border border-violet-500/50 rounded-full px-4 py-2 hover:bg-violet-600/30 transition-colors group"
 						>
-							<span className="text-sm font-medium text-white">{skill.name}</span>
+							<span className="text-sm font-medium text-white">
+								{skill.name}
+							</span>
 							<button
 								onClick={() => removeSkill(skill.id)}
 								className="text-white/60 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
