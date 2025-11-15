@@ -108,7 +108,7 @@ export default function FeedPage() {
 		} else if (sortBy === "budget-low") {
 			return sorted.sort((a, b) => a.budget - b.budget)
 		} else if (sortBy === "budget-high") {
-			return sorted.sort((a, b) => b.budget - a.budget) 
+			return sorted.sort((a, b) => b.budget - a.budget)
 		}
 		return sorted
 	}
@@ -117,7 +117,7 @@ export default function FeedPage() {
 	// Mapping for sort button display
 	const sortDisplay: Record<SortKey, string | JSX.Element> = {
 		"best-matches": "Best Matches",
-		"recent": "Sort",
+		"recent": "Recent",
 		"budget-low": (
 			<>
 				Budget <ArrowDown className="w-4 h-4" />
@@ -130,7 +130,6 @@ export default function FeedPage() {
 		),
 	}
 
-	
 	return (
 		<main className="bg-black text-white min-h-screen">
 			<FeedHeader />
