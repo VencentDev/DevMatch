@@ -1,11 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Menu, X } from 'lucide-react'
+import { Mail, Menu, X } from 'lucide-react'
 import AccountHeader from "../components/account-header"
 import ProjectsSidebar from "../components/active-projects/project-sidebar"
 import ChatWindow from "../components/active-projects/chat-window"
-import ProjectDetails from "../components/active-projects/project-details"
+import ProjectDetails from "@/app/components/active-projects/project-details"
 
 export default function ActiveProjectsPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<string>("1")
@@ -17,7 +17,7 @@ export default function ActiveProjectsPage() {
 
       {/* Main Content */}
       <main className="pt-20 pb-12">
-        <div className="h-[calc(100vh-120px)] flex gap-0">
+        <div className="h-[calc(100vh-130px)] flex gap-0">
           {/* Left Column - Projects Sidebar */}
           <div
             className={`fixed left-0 top-20 bottom-0 w-80 lg:relative lg:w-72 lg:top-auto bg-black border-r border-violet-500/20 flex flex-col z-40 transition-transform duration-300 ${
@@ -36,7 +36,7 @@ export default function ActiveProjectsPage() {
             className="lg:hidden fixed bottom-32 left-4 z-50 w-12 h-12 rounded-full bg-violet-500 hover:bg-violet-600 text-white flex items-center justify-center transition-all"
             aria-label="Toggle projects menu"
           >
-            {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+            {sidebarOpen ? <X size={24} /> : <Mail size={24} />}
           </button>
 
           {/* Mobile overlay */}

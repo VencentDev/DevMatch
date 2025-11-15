@@ -22,7 +22,7 @@ const MOCK_PROJECTS = [
 		title: "Build a React Dashboard with Real-time Analytics",
 		description:
 			"Need a modern dashboard component with real-time data visualization and interactive charts.",
-		budget: "$1,500 - $2,500",
+		budget: 1500,
 		skills: ["React", "TypeScript", "Chart.js", "Tailwind CSS"],
 		deadline: "Due in 2 weeks",
 		postedBy: "TechStartup Inc.",
@@ -32,7 +32,7 @@ const MOCK_PROJECTS = [
 		title: "Mobile App UI/UX Design",
 		description:
 			"Looking for a talented designer to create beautiful and intuitive mobile app designs.",
-		budget: "$800 - $1,200",
+		budget: 800,
 		skills: ["Figma", "UI Design", "UX Research", "Mobile Design"],
 		deadline: "Due in 3 weeks",
 		postedBy: "Digital Agency",
@@ -42,7 +42,7 @@ const MOCK_PROJECTS = [
 		title: "Backend API Development with Node.js",
 		description:
 			"Develop a scalable REST API for our e-commerce platform with authentication and payment integration.",
-		budget: "$2,000 - $3,500",
+		budget: 2000,
 		skills: ["Node.js", "Express", "MongoDB", "AWS"],
 		deadline: "Due in 1 month",
 		postedBy: "E-commerce Co.",
@@ -52,7 +52,7 @@ const MOCK_PROJECTS = [
 		title: "Next.js Website Redesign",
 		description:
 			"Redesign our company website with modern best practices and improved SEO optimization.",
-		budget: "$1,200 - $2,000",
+		budget: 1200,
 		skills: ["Next.js", "React", "SEO", "Performance Optimization"],
 		deadline: "Due in 2 weeks",
 		postedBy: "Consulting Firm",
@@ -62,7 +62,7 @@ const MOCK_PROJECTS = [
 		title: "Database Optimization and Migration",
 		description:
 			"Optimize and migrate our legacy database system to a modern cloud-based solution.",
-		budget: "$3,000 - $5,000",
+		budget: 3000,
 		skills: ["PostgreSQL", "AWS", "Database Design", "DevOps"],
 		deadline: "Due in 1 month",
 		postedBy: "Enterprise Solutions",
@@ -72,7 +72,7 @@ const MOCK_PROJECTS = [
 		title: "Full Stack Chat Application",
 		description:
 			"Create a real-time chat application with user authentication and message storage.",
-		budget: "$2,500 - $4,000",
+		budget: 2500,
 		skills: ["React", "Node.js", "Socket.io", "MongoDB"],
 		deadline: "Due in 3 weeks",
 		postedBy: "SaaS Startup",
@@ -97,17 +97,9 @@ export default function FeedPage() {
 		} else if (sortBy === "recent") {
 			return sorted
 		} else if (sortBy === "budget-low") {
-			return sorted.sort((a, b) => {
-				const aMin = Number.parseInt(a.budget.match(/\d+/)?.[0] || "0")
-				const bMin = Number.parseInt(b.budget.match(/\d+/)?.[0] || "0")
-				return aMin - bMin
-			})
+			return sorted.sort((a, b) => a.budget - b.budget) // Ascending order
 		} else if (sortBy === "budget-high") {
-			return sorted.sort((a, b) => {
-				const aMin = Number.parseInt(a.budget.match(/\d+/)?.[0] || "0")
-				const bMin = Number.parseInt(b.budget.match(/\d+/)?.[0] || "0")
-				return bMin - aMin
-			})
+			return sorted.sort((a, b) => b.budget - a.budget) // Descending order
 		}
 		return sorted
 	}

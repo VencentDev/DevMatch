@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { Calendar, DollarSign, FileText } from "lucide-react"
+import { Calendar, DollarSign, FileText } from 'lucide-react'
 
 interface ProjectData {
 	id: string
@@ -33,7 +33,7 @@ const MOCK_PROJECTS: Record<string, ProjectData> = {
 		title: "API Integration",
 		budget: 1800,
 		deadline: "2024-12-15",
-		status: "In Progress",
+		status: "Rate/Review",
 		description:
 			"Integrate third-party payment API and setup webhooks for transaction handling.",
 		skills: ["Node.js", "REST API", "Payment Processing"],
@@ -44,7 +44,7 @@ const MOCK_PROJECTS: Record<string, ProjectData> = {
 		title: "Database Optimization",
 		budget: 1500,
 		deadline: "2024-12-20",
-		status: "Pending",
+		status: "Completed",
 		description:
 			"Optimize database queries and implement caching for better performance.",
 		skills: ["SQL", "Database Design", "Performance Tuning"],
@@ -55,7 +55,7 @@ const MOCK_PROJECTS: Record<string, ProjectData> = {
 		title: "Mobile App Development",
 		budget: 5000,
 		deadline: "2025-01-15",
-		status: "Starting",
+		status: "In Progress",
 		description:
 			"Build a cross-platform mobile app using React Native with backend integration.",
 		skills: ["React Native", "Node.js", "Firebase", "Mobile Development"],
@@ -153,8 +153,8 @@ export default function ProjectDetails({
 						className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
 							project.status === "In Progress"
 								? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-								: project.status === "Pending"
-								? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
+								: project.status === "Rate/Review"
+								? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
 								: "bg-green-500/20 text-green-300 border border-green-500/30"
 						}`}
 					>

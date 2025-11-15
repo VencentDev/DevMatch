@@ -38,13 +38,17 @@ export default function SignupPage(): React.ReactElement {
 			{/* Navigation */}
 			<div className="flex justify-between items-center px-6 md:px-12 py-6 border-b border-white/10">
 				<Link
-					href="/"
+					href="/home-page"
 					className="text-2xl font-bold flex items-center gap-2"
 				>
-					<div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center">
-						<span className="text-white font-bold">DM</span>
+					<div className="flex items-center gap-2 font-bold text-xl text-white">
+						<div className="w-8 h-8 bg-linear-to-br from-violet-500 to-violet-700 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+							DM
+						</div>
+						<div className="text-2xl font-bold bg-linear-to-r from-violet-400 to-violet-600 bg-clip-text text-transparent">
+							DevMatch
+						</div>
 					</div>
-					<span>DevMatch</span>
 				</Link>
 				<div className="text-gray-400">
 					Already have an account?{" "}

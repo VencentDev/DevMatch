@@ -50,7 +50,9 @@ export default function Footer(): React.ReactElement {
 							<div className="w-10 h-10 bg-violet-600 rounded-lg flex items-center justify-center font-bold text-white">
 								DM
 							</div>
-							<span className="text-xl font-semibold">DevMatch</span>
+							<div className="text-2xl font-bold bg-linear-to-r from-violet-400 to-violet-600 bg-clip-text text-transparent">
+								DevMatch
+							</div>
 						</div>
 						<p className="text-gray-400 text-sm leading-relaxed mb-8">
 							Connect with top freelancers and clients. Build amazing projects
