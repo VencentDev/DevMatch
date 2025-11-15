@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Pencil, Plus, X } from 'lucide-react'
+import { Pencil, Plus, X } from "lucide-react"
 import SkillsModal from "./skills-modal"
 
 interface Skill {
@@ -33,12 +33,12 @@ export default function SkillsSection() {
 
 	return (
 		<>
-			<div className="bg-card border border-border rounded-xl p-6">
+			<div className="bg-black/40 border border-violet-500/20 rounded-lg p-6">
 				<div className="flex items-center justify-between mb-4">
-					<h2 className="text-xl font-bold text-foreground">Skills</h2>
+					<h2 className="text-xl font-bold text-white">Skills</h2>
 					<button
 						onClick={() => setIsModalOpen(true)}
-						className="p-2 hover:bg-white/10 rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+						className="p-2 hover:bg-violet-500/20 rounded-lg transition-colors text-white/60 hover:text-white"
 					>
 						<Pencil size={18} />
 					</button>
@@ -48,12 +48,14 @@ export default function SkillsSection() {
 					{skills.map((skill) => (
 						<div
 							key={skill.id}
-							className="flex items-center gap-2 bg-violet-600/20 border border-violet-600/50 rounded-full px-4 py-2 hover:bg-violet-600/30 transition-colors group"
+							className="flex items-center gap-2 bg-violet-600/20 border border-violet-500/50 rounded-full px-4 py-2 hover:bg-violet-600/30 transition-colors group"
 						>
-							<span className="text-sm font-medium text-foreground">{skill.name}</span>
+							<span className="text-sm font-medium text-white">
+								{skill.name}
+							</span>
 							<button
 								onClick={() => removeSkill(skill.id)}
-								className="text-muted-foreground hover:text-foreground transition-colors opacity-0 group-hover:opacity-100"
+								className="text-white/60 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
 							>
 								<X size={14} />
 							</button>

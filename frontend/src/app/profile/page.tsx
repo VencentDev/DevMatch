@@ -1,26 +1,27 @@
 "use client"
 
-import { useState } from "react"
-import { Pencil, Plus, X, Star } from 'lucide-react'
-import ProfileSidebar from "@/components/profile/profile-sidebar"
-import ProfileHeader from "@/components/profile/profile-header"
-import ProfileAbout from "@/components/profile/profile-about"
-import SkillsSection from "@/components/profile/skills-section"
-import EducationSection from "@/components/profile/education-section"
-import CertificationsSection from "@/components/profile/certifications-section"
-import ExperienceSection from "@/components/profile/experience-section"
+import AccountHeader from "@/app/components/account-header"
+import ProfileSidebar from "@/app/components/profile/profile-sidebar"
+import ProfileHeader from "@/app/components/profile/profile-header"
+import ProfileAbout from "@/app/components/profile/profile-about"
+import SkillsSection from "@/app/components/profile/skills-section"
+import EducationSection from "@/app/components/profile/education-section"
+import CertificationsSection from "@/app/components/profile/certifications-section"
+import ExperienceSection from "@/app/components/profile/experience-section"
 
 export default function ProfilePage() {
 	return (
-		<div className="min-h-screen bg-background text-foreground">
+		<div className="min-h-screen bg-black text-white">
+			<AccountHeader />
+
 			{/* Main layout with sidebar */}
-			<div className="flex">
+			<div className="flex pt-20">
 				{/* Sidebar Navigation */}
 				<ProfileSidebar />
 
 				{/* Main Content */}
-				<div className="flex-1 ml-64 pt-20">
-					<div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
+				<div className="flex-1 ml-64 px-6 py-8 overflow-y-auto">
+					<div className="max-w-4xl mx-auto space-y-6">
 						{/* Profile Header with Cover and Avatar */}
 						<ProfileHeader />
 
