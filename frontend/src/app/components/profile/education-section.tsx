@@ -1,0 +1,86 @@
+"use client"
+
+import { useState } from "react"
+import { Pencil, Plus, X } from 'lucide-react'
+import EducationModal from "./education-modal"
+
+interface Education {
+	id: string
+	school: string
+	degree: string
+	field: string
+	graduationYear: string
+}
+
+export default function EducationSection() {
+	const [educations, setEducations] = useState<Education[]>([
+		{
+			id: "1",
+			school: "State University",
+			degree: "Bachelor's",
+			field: "Computer Science",
+			graduationYear: "2020",
+		},
+	])
+	const [isModalOpen, setIsModalOpen] = useState(false)
+
+	const removeEducation = (id: string) => {
+		setEducations(educations.filter((edu) => edu.id !== id))
+	}
+
+	const addEducation = (newEducation: Omit<Education, "id">) => {
+		const education: Education = {
+			id: Date.now().toString(),
+			...newEducation,
+		}
+		setEducations([...educations, education])
+	}
+
+	return (
+		<>
+			<div className="bg-card border border-border rounded-xl p-6">
+				<div className="flex items-center justify-between mb-6">
+					<h2 className="text-xl font-bold text-foreground">Education</h2>
+					<button
+						onClick={() => setIsModalOpen(true)}
+						className="flex items-center gap-2 p-2 hover:bg-white/10 rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+					>
+						<Plus size={18} />
+					</button>
+				</div>
+
+				<div className="space-y-4">
+					{educations.map((edu) => (
+						<div
+							key={edu.id}
+							className="pb-4 border-b border-border last:border-b-0 last:pb-0 flex justify-between items-start"
+						>
+							<div className="flex-1">
+								<h3 className="font-semibold text-foreground">{edu.school}</h3>
+								<p className="text-sm text-muted-foreground mb-1">
+									{edu.degree} in {edu.field}
+								</p>
+								<p className="text-xs text-muted-foreground/70">
+									Graduated: {edu.graduationYear}
+								</p>
+							</div>
+							<button
+								onClick={() => removeEducation(edu.id)}
+								className="ml-4 p-2 hover:bg-white/10 rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+							>
+								<X size={16} />
+							</button>
+						</div>
+					))}
+				</div>
+			</div>
+
+			{/* Education Modal */}
+			<EducationModal
+				isOpen={isModalOpen}
+				onClose={() => setIsModalOpen(false)}
+				onAddEducation={addEducation}
+			/>
+		</>
+	)
+}
