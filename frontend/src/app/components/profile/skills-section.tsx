@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Pencil, Plus, X } from "lucide-react"
+import { Pencil, X } from "lucide-react"
 import SkillsModal from "./skills-modal"
 
 interface Skill {
