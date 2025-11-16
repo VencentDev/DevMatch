@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Pencil, Plus, X } from "lucide-react"
+import { Pencil, X } from "lucide-react"
 import SkillsModal from "./skills-modal"
 
 interface Skill {
@@ -33,12 +33,14 @@ export default function SkillsSection() {
 
 	return (
 		<>
-			<div className="bg-black/40 border border-violet-500/20 rounded-lg p-6">
+			<div className="bg-linear-to-br from-violet-600/10 to-violet-600/5 rounded-sm p-6">
 				<div className="flex items-center justify-between mb-4">
-					<h2 className="text-xl font-bold text-white">Skills</h2>
+					<div className="flex items-center gap-2">
+						<h2 className="text-xl font-bold text-white">Skills</h2>
+					</div>
 					<button
 						onClick={() => setIsModalOpen(true)}
-						className="p-2 hover:bg-violet-500/20 rounded-lg transition-colors text-white/60 hover:text-white"
+						className="p-2 hover:bg-violet-500/20 rounded-sm transition-colors text-white/60 hover:text-white"
 					>
 						<Pencil size={18} />
 					</button>

@@ -117,10 +117,12 @@ export default function AccountHeader() {
 								</div>
 
 								<div className="py-2">
+									<a href="/profile">
 									<button className="w-full px-4 py-2 flex items-center gap-3 text-white/70 hover:text-white hover:bg-white/5 transition-colors text-sm">
 										<User size={16} />
 										<span>Profile</span>
 									</button>
+									</a>
 
 									<a
 										href="/active-projects"

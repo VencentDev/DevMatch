@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Edit } from 'lucide-react'
+import { Edit } from "lucide-react"
 
 export default function ProfileAbout() {
 	const [isEditing, setIsEditing] = useState(false)
@@ -10,12 +10,12 @@ export default function ProfileAbout() {
 	)
 
 	return (
-		<div className="bg-black/40 border border-violet-500/20 rounded-lg p-6">
+		<div className="bg-linear-to-br from-violet-600/10 to-violet-600/5 rounded-sm p-6">
 			<div className="flex items-center justify-between mb-4">
 				<h2 className="text-xl font-bold text-white">About</h2>
 				<button
 					onClick={() => setIsEditing(!isEditing)}
-					className="p-2 hover:bg-violet-500/20 rounded-lg transition-colors text-white/60 hover:text-white"
+					className="p-2 hover:bg-violet-500/20 rounded-sm transition-colors text-white/60 hover:text-white"
 				>
 					<Edit size={18} />
 				</button>
@@ -26,19 +26,19 @@ export default function ProfileAbout() {
 					<textarea
 						value={bio}
 						onChange={(e) => setBio(e.target.value)}
-						className="w-full px-4 py-3 bg-black/60 border border-violet-500/20 rounded-lg focus:border-violet-500/50 focus:outline-none transition-colors text-white placeholder-white/40 resize-none h-28"
+						className="w-full px-4 py-3 bg-black/40 border border-violet-500/20 rounded-sm focus:border-violet-500/50 focus:outline-none transition-colors text-white placeholder-white/40 resize-none h-28"
 						placeholder="Tell us about yourself..."
 					/>
 					<div className="flex gap-2">
 						<button
 							onClick={() => setIsEditing(false)}
-							className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-colors font-medium"
+							className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-sm transition-colors font-medium"
 						>
 							Save
 						</button>
 						<button
 							onClick={() => setIsEditing(false)}
-							className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-violet-500/20 rounded-lg transition-colors font-medium text-white/80"
+							className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-violet-500/20 rounded-sm transition-colors font-medium text-white/80"
 						>
 							Cancel
 						</button>
