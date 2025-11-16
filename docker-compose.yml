@@ -10,9 +10,9 @@ services:
     depends_on:
       - db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/devmatch
-      SPRING_DATASOURCE_USERNAME: devmatch_user
-      SPRING_DATASOURCE_PASSWORD: devmatch_password
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/DevMatch
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: morditwi09
 
   frontend:
     build:
@@ -26,7 +26,6 @@ services:
   semantic_service:
     build:
       context: ./semantic_service
-      dockerfile: Dockerfile
     ports:
       - "8000:8000"
 
