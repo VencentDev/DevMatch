@@ -31,10 +31,6 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    /*
-     * Replace many-to-many roles with a single role assignment.
-     * Keep Role entity and RoleRepository usage elsewhere in the app.
-     */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
