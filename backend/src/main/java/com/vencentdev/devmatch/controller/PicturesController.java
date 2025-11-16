@@ -29,11 +29,9 @@ public class PicturesController {
     // Save or update pictures
     @PostMapping
     public ResponseEntity<Pictures> saveOrUpdatePictures(@RequestBody Pictures pictures) {
-        // Get the currently authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User authenticatedUser = (User) authentication.getPrincipal();
 
-        // Delegate to the service
         Pictures savedPictures = picturesService.saveOrUpdatePictures(pictures, authenticatedUser);
         return ResponseEntity.ok(savedPictures);
     }
@@ -41,12 +39,10 @@ public class PicturesController {
     // Delete pictures by user ID
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deletePicturesByUserId(@PathVariable Long userId) {
-        // Get the currently authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User authenticatedUser = (User) authentication.getPrincipal();
 
-        // Delegate to the service
-        picturesService.deletePicturesByUser(new User(userId), authenticatedUser);
+        picturesService.deletePicturesByUser(authenticatedUser);
         return ResponseEntity.noContent().build();
     }
 }
