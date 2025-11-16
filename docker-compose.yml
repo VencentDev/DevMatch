@@ -4,36 +4,44 @@ services:
   backend:
     build:
       context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
-    volumes:
-      - ./backend:/app
     depends_on:
       - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/devmatch
+      SPRING_DATASOURCE_USERNAME: devmatch_user
+      SPRING_DATASOURCE_PASSWORD: devmatch_password
 
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    volumes:
-      - ./frontend:/app
     depends_on:
       - backend
 
+  semantic_service:
+    build:
+      context: ./semantic_service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+
   db:
-    image: mysql:8
-    container_name: devmatch-mysql
+    image: postgres:15
+    container_name: devmatch-postgres
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: devmatch
-      MYSQL_USER: devmatch_user
-      MYSQL_PASSWORD: devmatch_password
+      POSTGRES_DB: DevMatch
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: morditwi09
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/postgresql/data
 
 volumes:
   db_data:
