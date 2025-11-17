@@ -27,19 +27,21 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final VerificationTokenService tokenService;
     private final JwtUtil jwtUtil;
+    private final EmailService emailService;
 
     public AuthService(AuthenticationManager authenticationManager,
                        UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        RoleRepository roleRepository,
                        VerificationTokenService tokenService,
-                       JwtUtil jwtUtil) {
+                       JwtUtil jwtUtil, EmailService emailService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.tokenService = tokenService;
         this.jwtUtil = jwtUtil;
+        this.emailService = emailService;
     }
 
     public Map<String, Object> login(String identifier, String password) throws AuthenticationException {
@@ -86,7 +88,7 @@ public class AuthService {
         userRepository.save(user);
 
         String token = tokenService.createTokenForUser(user);
-
+        emailService.sendVerificationEmail(user.getEmail(), token);
         return Map.of("message", "Signup successful, verify email", "token", token);
     }
 

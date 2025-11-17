@@ -37,10 +37,10 @@ public class AuthController {
         return ResponseEntity.ok(authService.signup(req));
     }
 
-    @PostMapping("/verify")
-    public ResponseEntity<?> verifyEmailPost(@RequestBody Map<String, String> body) {
-        String token = body == null ? null : body.get("token");
-        if (token == null || token.isBlank()) return ResponseEntity.badRequest().body(Map.of("error", "Token missing"));
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyEmailGet(@RequestParam String token) {
+        if (token == null || token.isBlank())
+            return ResponseEntity.badRequest().body(Map.of("error", "Token missing"));
         return ResponseEntity.ok(authService.verifyToken(token));
     }
 
