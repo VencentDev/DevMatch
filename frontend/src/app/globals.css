@@ -66,6 +66,22 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
+  
+  /* Added semantic color tokens based on the project design system */
+  --violet-primary: oklch(0.551 0.141 264.364);
+  --violet-light: oklch(0.704 0.089 263.902);
+  --violet-dark: oklch(0.419 0.121 265.755);
+  --status-in-progress: oklch(0.500 0.203 247.939);
+  --status-pending: oklch(0.632 0.207 64.716);
+  --status-completed: oklch(0.533 0.207 142.496);
+  --glass-light: oklch(1 0 0 / 5%);
+  --glass-medium: oklch(1 0 0 / 10%);
+  --white-muted: oklch(1 0 0 / 40%);
+  --white-light: oklch(1 0 0 / 60%);
+  --white-lighter: oklch(1 0 0 / 80%);
+  --gray-muted: oklch(0.704 0.04 256.788);
+  --gray-dark: oklch(0.279 0.041 260.031);
+  
   --sidebar: oklch(0.208 0.042 265.755);
   --sidebar-foreground: oklch(0.984 0.003 247.858);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -115,6 +131,21 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  
+  /* Added semantic token references for easier use in components */
+  --color-violet-primary: var(--violet-primary);
+  --color-violet-light: var(--violet-light);
+  --color-violet-dark: var(--violet-dark);
+  --color-status-in-progress: var(--status-in-progress);
+  --color-status-pending: var(--status-pending);
+  --color-status-completed: var(--status-completed);
+  --color-glass-light: var(--glass-light);
+  --color-glass-medium: var(--glass-medium);
+  --color-white-muted: var(--white-muted);
+  --color-white-light: var(--white-light);
+  --color-white-lighter: var(--white-lighter);
+  --color-gray-muted: var(--gray-muted);
+  --color-gray-dark: var(--gray-dark);
 }
 
 @layer base {
@@ -123,6 +154,115 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Added utility classes for violet gradient, black background, and glass effect patterns used throughout the home pages */
+@layer components {
+  /* Violet gradient utilities matching Header and HeroSection */
+  .violet-gradient {
+    @apply bg-linear-to-r from-violet-400 via-violet-500 to-violet-600 bg-clip-text text-transparent;
+  }
+
+  .violet-gradient-to-r {
+    @apply bg-linear-to-r from-violet-500 to-violet-600;
+  }
+
+  .violet-glow {
+    @apply text-violet-400 group-hover:text-violet-300 transition-colors duration-300;
+  }
+
+  /* Glass morphism card utilities matching HowItWorks cards */
+  .glass-card {
+    @apply bg-linear-to-br from-white/5 to-white/0 backdrop-blur-md border border-violet-500/20 rounded-2xl hover:border-violet-500/50 transition-all duration-300;
+  }
+
+  .glass-card-hover {
+    @apply bg-linear-to-br from-violet-600/10 to-violet-600/5;
+  }
+
+  .glass-light {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+
+  .glass-violet {
+    @apply bg-white/5 backdrop-blur-md border border-violet-500/20;
+  }
+
+  /* Text opacity utilities matching home page hierarchy */
+  .text-white-primary {
+    @apply text-white;
+  }
+
+  .text-white-secondary {
+    @apply text-white/80;
+  }
+
+  .text-white-tertiary {
+    @apply text-white/60;
+  }
+
+  .text-white-muted {
+    @apply text-white/40;
+  }
+
+  .text-gray-secondary {
+    @apply text-gray-400;
+  }
+
+  /* Border and divider utilities */
+  .border-violet-accent {
+    @apply border-violet-500/30;
+  }
+
+  .border-violet-hover {
+    @apply border-violet-500/60;
+  }
+
+  .divider-violet {
+    @apply h-px bg-linear-to-r from-transparent via-violet-500/50 to-transparent;
+  }
+
+  /* Button utilities matching Header and Footer */
+  .btn-violet-gradient {
+    @apply bg-linear-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105;
+  }
+
+  .btn-violet-outline {
+    @apply border border-violet-400/50 text-white font-semibold rounded-full hover:border-violet-400 transition-colors;
+  }
+
+  /* Icon container utilities matching HowItWorks and Roles carousel */
+  .icon-container {
+    @apply p-4 bg-violet-600/10 rounded-xl group-hover:bg-violet-600/20 transition-colors duration-300;
+  }
+
+  .icon-violet {
+    @apply w-12 h-12 text-violet-400 group-hover:text-violet-300 transition-colors duration-300;
+  }
+
+  /* Background blur overlay matching HeroSection */
+  .blur-overlay {
+    @apply absolute inset-0 bg-black/40 -z-10;
+  }
+
+  /* Animated background elements matching Roles carousel */
+  .glow-blur {
+    @apply rounded-full blur-3xl bg-violet-600/5;
+  }
+
+  /* Section header utilities */
+  .section-title {
+    @apply text-4xl md:text-5xl font-bold text-white mb-4 text-balance;
+  }
+
+  .section-subtitle {
+    @apply text-lg text-gray-400;
+  }
+
+  /* Card hover animations */
+  .card-hover-border {
+    @apply absolute left-0 top-0 h-full w-1 bg-linear-to-b from-violet-500 to-transparent scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top;
   }
 }
 
