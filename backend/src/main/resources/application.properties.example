@@ -1,0 +1,6 @@
+spring.datasource.url=jdbc:postgresql://localhost:5432/DevMatch
+spring.datasource.username=postgres
+spring.datasource.password=your_db_password_here
+app.jwt.secret=example-secret-replace-in-prod
+app.jwt.expiration-ms=86400000
+app.semantic.ai.url=http://localhost:8000/semantic-skill-match
