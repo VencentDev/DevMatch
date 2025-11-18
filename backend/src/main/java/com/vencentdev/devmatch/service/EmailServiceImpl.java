@@ -30,7 +30,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendVerificationEmail(String to, String token) {
         try {
             logger.info("Sending verification email to {}", to);
-            String link = frontendBaseUrl + "/api/auth/verify?token=" + token;
+            String link = frontendBaseUrl + "/verify/" + token;
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, "utf-8");
             String html = "<p>Please verify your email by clicking the link below:</p>"
