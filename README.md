@@ -40,7 +40,7 @@ Key goals:
 |--------|-------------|
 | **Backend** | Java Spring Boot |
 | **Database** | PostgreSQL |
-| **Frontend (planned)** | React / Thymeleaf |
+| **Frontend** | Next.js |
 | **ORM** | Hibernate / JPA |
 | **Build Tool** | Maven |
 | **Authentication** | Spring Security + JWT |
