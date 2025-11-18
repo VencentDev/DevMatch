@@ -12,7 +12,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/DevMatch
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: morditwi09
+      SPRING_DATASOURCE_PASSWORD: admin!
 
   frontend:
     build:
@@ -36,7 +36,7 @@ services:
     environment:
       POSTGRES_DB: DevMatch
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: morditwi09
+      POSTGRES_PASSWORD: admin!
     ports:
       - "5432:5432"
     volumes:

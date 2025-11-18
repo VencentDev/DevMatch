@@ -16,6 +16,7 @@ export default function SignupPage(): React.ReactElement {
 	const [isLoading, setIsLoading] = useState(false)
 	const [errorMessage, setErrorMessage] = useState("")
 	const [successMessage, setSuccessMessage] = useState("")
+	const [showPassword, setShowPassword] = useState(false) // State to toggle password visibility
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value, type, checked } = e.target
@@ -184,16 +185,25 @@ export default function SignupPage(): React.ReactElement {
 							>
 								Password
 							</label>
-							<input
-								type="password"
-								id="password"
-								name="password"
-								value={formData.password}
-								onChange={handleInputChange}
-								placeholder="••••••••"
-								className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
-								required
-							/>
+							<div className="relative">
+								<input
+									type={showPassword ? "text" : "password"} // Toggle between "text" and "password"
+									id="password"
+									name="password"
+									value={formData.password}
+									onChange={handleInputChange}
+									placeholder="••••••••"
+									className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
+									required
+								/>
+								<button
+									type="button"
+									onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
+									className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white"
+								>
+									{showPassword ? "Hide" : "Show"}
+								</button>
+							</div>
 						</div>
 
 						{/* Confirm Password */}
@@ -205,7 +215,7 @@ export default function SignupPage(): React.ReactElement {
 								Confirm Password
 							</label>
 							<input
-								type="password"
+								type={showPassword ? "text" : "password"} // Toggle between "text" and "password"
 								id="confirmPassword"
 								name="confirmPassword"
 								value={formData.confirmPassword}
