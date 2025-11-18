@@ -24,6 +24,7 @@ public class VerificationTokenService {
     }
 
     public String createTokenForUser(User user) {
+        tokenRepository.deleteAll(tokenRepository.findAllByUser(user)); // Remove old tokens
         String token = UUID.randomUUID().toString();
         VerificationToken vt = new VerificationToken(token, user, Instant.now().plus(1, ChronoUnit.DAYS));
         tokenRepository.save(vt);
