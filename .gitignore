@@ -1,2 +1,2 @@
-# docker build files
-docker-compose.override.yml
+# Ignore Docker Compose files
+docker-compose.yml
