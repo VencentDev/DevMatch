@@ -3,7 +3,8 @@
 import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Eye, EyeOff } from "lucide-react" // Import eye icons
+import { toast } from "sonner" // Import toast from Sonner
 
 export default function SignupPage(): React.ReactElement {
 	const [formData, setFormData] = useState({
@@ -14,8 +15,8 @@ export default function SignupPage(): React.ReactElement {
 		agreedToTerms: false,
 	})
 	const [isLoading, setIsLoading] = useState(false)
-	const [errorMessage, setErrorMessage] = useState("")
-	const [successMessage, setSuccessMessage] = useState("")
+	const [showPassword, setShowPassword] = useState(false) // State to toggle password visibility
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false) // State to toggle confirm password visibility
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value, type, checked } = e.target
@@ -28,8 +29,6 @@ export default function SignupPage(): React.ReactElement {
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		setIsLoading(true)
-		setErrorMessage("")
-		setSuccessMessage("")
 
 		// Frontend validation
 		if (
@@ -38,21 +37,31 @@ export default function SignupPage(): React.ReactElement {
 			!formData.password ||
 			!formData.confirmPassword
 		) {
-			setErrorMessage("All fields are required.")
+			toast.error("All fields are required.", {
+				position: "bottom-right",
+				style: { backgroundColor: "red", color: "white" }, // Red background for error
+			})
 			setIsLoading(false)
 			return
 		}
 
 		if (formData.password !== formData.confirmPassword) {
-			setErrorMessage("Passwords do not match.")
+			toast.error("Passwords do not match.", {
+				position: "bottom-right",
+				style: { backgroundColor: "red", color: "white" }, // Red background for error
+			})
 			setIsLoading(false)
 			return
 		}
 
 		const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/
 		if (!passwordRegex.test(formData.password)) {
-			setErrorMessage(
+			toast.error(
 				"Password must be at least 8 characters long, include 1 uppercase letter, 1 number, and 1 special character.",
+				{
+					position: "bottom-right",
+					style: { backgroundColor: "red", color: "white" }, // Red background for error
+				},
 			)
 			setIsLoading(false)
 			return
@@ -74,17 +83,25 @@ export default function SignupPage(): React.ReactElement {
 
 			if (response.ok) {
 				const data = await response.json()
-				setSuccessMessage(
+				toast.success(
 					data.message || "Signup successful! Please verify your email.",
+					{
+						position: "top-center",
+						style: { backgroundColor: "green", color: "white" }, // Green background for success
+					},
 				)
 			} else {
 				const errorData = await response.json()
-				setErrorMessage(errorData.error || "An error occurred during signup.")
+				toast.error(errorData.error || "An error occurred during signup.", {
+					position: "bottom-right",
+					style: { backgroundColor: "red", color: "white" }, // Red background for error
+				})
 			}
 		} catch (error) {
-			setErrorMessage(
-				"Failed to connect to the server. Please try again later.",
-			)
+			toast.error("Failed to connect to the server. Please try again later.", {
+				position: "bottom-right",
+				style: { backgroundColor: "red", color: "white" }, // Red background for error
+			})
 		} finally {
 			setIsLoading(false)
 		}
@@ -99,7 +116,7 @@ export default function SignupPage(): React.ReactElement {
 					className="text-2xl font-bold flex items-center gap-2"
 				>
 					<div className="flex items-center gap-2 font-bold text-xl text-white">
-						<div className="w-8 h-8 bg-linear-to-br from-violet-500 to-violet-700 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+						<div className="w-8 h-8 bg-linear-to-br from-violet-500 to-violet-700 rounded-sm flex items-center justify-center text-white text-sm font-bold">
 							DM
 						</div>
 						<div className="text-2xl font-bold bg-linear-to-r from-violet-400 to-violet-600 bg-clip-text text-transparent">
@@ -123,12 +140,9 @@ export default function SignupPage(): React.ReactElement {
 				<div className="w-full max-w-md">
 					{/* Header */}
 					<div className="text-center mb-12">
-						<h1 className="text-4xl md:text-5xl font-bold mb-4 text-balance">
+						<h1 className="text-4xl md:text-5xl font-bold mb-2 text-balance">
 							Join DevMatch
 						</h1>
-						<p className="text-gray-400 text-lg">
-							Connect with the perfect match for your next project
-						</p>
 					</div>
 
 					{/* Form */}
@@ -151,7 +165,7 @@ export default function SignupPage(): React.ReactElement {
 								value={formData.username}
 								onChange={handleInputChange}
 								placeholder="john_doe"
-								className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
+								className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
 								required
 							/>
 						</div>
@@ -171,7 +185,7 @@ export default function SignupPage(): React.ReactElement {
 								value={formData.email}
 								onChange={handleInputChange}
 								placeholder="you@example.com"
-								className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
+								className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
 								required
 							/>
 						</div>
@@ -184,16 +198,25 @@ export default function SignupPage(): React.ReactElement {
 							>
 								Password
 							</label>
-							<input
-								type="password"
-								id="password"
-								name="password"
-								value={formData.password}
-								onChange={handleInputChange}
-								placeholder="••••••••"
-								className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
-								required
-							/>
+							<div className="relative">
+								<input
+									type={showPassword ? "text" : "password"} // Toggle between "text" and "password"
+									id="password"
+									name="password"
+									value={formData.password}
+									onChange={handleInputChange}
+									placeholder="••••••••"
+									className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
+									required
+								/>
+								<button
+									type="button"
+									onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
+									className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white"
+								>
+									{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+								</button>
+							</div>
 						</div>
 
 						{/* Confirm Password */}
@@ -204,16 +227,29 @@ export default function SignupPage(): React.ReactElement {
 							>
 								Confirm Password
 							</label>
-							<input
-								type="password"
-								id="confirmPassword"
-								name="confirmPassword"
-								value={formData.confirmPassword}
-								onChange={handleInputChange}
-								placeholder="••••••••"
-								className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
-								required
-							/>
+							<div className="relative">
+								<input
+									type={showConfirmPassword ? "text" : "password"} // Toggle between "text" and "password"
+									id="confirmPassword"
+									name="confirmPassword"
+									value={formData.confirmPassword}
+									onChange={handleInputChange}
+									placeholder="••••••••"
+									className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
+									required
+								/>
+								<button
+									type="button"
+									onClick={() => setShowConfirmPassword(!showConfirmPassword)} // Toggle confirm password visibility
+									className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white"
+								>
+									{showConfirmPassword ? (
+										<EyeOff size={20} />
+									) : (
+										<Eye size={20} />
+									)}
+								</button>
+							</div>
 						</div>
 
 						{/* Terms Checkbox */}
@@ -252,7 +288,7 @@ export default function SignupPage(): React.ReactElement {
 						<button
 							type="submit"
 							disabled={isLoading}
-							className="w-full py-3 px-4 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-6 group"
+							className="w-full py-3 px-4 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-sm transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-6 group"
 						>
 							{isLoading ? (
 								<>
@@ -270,20 +306,6 @@ export default function SignupPage(): React.ReactElement {
 							)}
 						</button>
 					</form>
-
-					{/* Error Message */}
-					{errorMessage && (
-						<div className="text-red-500 text-sm text-center mt-4">
-							{errorMessage}
-						</div>
-					)}
-
-					{/* Success Message */}
-					{successMessage && (
-						<div className="text-green-500 text-sm text-center mt-4">
-							{successMessage}
-						</div>
-					)}
 				</div>
 			</div>
 		</div>
