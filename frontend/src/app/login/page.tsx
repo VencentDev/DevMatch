@@ -28,6 +28,12 @@ export default function LoginPage(): React.ReactElement {
 		e.preventDefault()
 		setIsLoading(true)
 
+		if (!formData.email || !formData.password) {
+			toast.error("Please fill in all fields.", { position: "bottom-right" })
+			setIsLoading(false)
+			return
+		}
+
 		try {
 			const response = await fetch("http://localhost:8080/api/auth/login", {
 				method: "POST",
@@ -35,34 +41,36 @@ export default function LoginPage(): React.ReactElement {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					email: formData.email,
+					identifier: formData.email,
 					password: formData.password,
 				}),
 			})
 
 			if (response.ok) {
 				const data = await response.json()
-				toast.success("Login successful!", { position: "bottom-center" })
 
-				if (formData.rememberMe) {
-					localStorage.setItem("authToken", data.token)
-				} else {
-					sessionStorage.setItem("authToken", data.token)
-				}
-
+				toast.success("Login successful!", { position: "top-center" })
+				
 				if (data.profileCompleted) {
 					router.push("/feed")
 				} else {
 					router.push("/finish-profile")
 				}
+				if (formData.rememberMe) {
+					localStorage.setItem("authToken", data.token)
+				} else {
+					sessionStorage.setItem("authToken", data.token)
+				}
 			} else {
 				const errorData = await response.json()
-				toast.error(`Login failed: ${errorData.message}`, {
+				// Display the error message from the backend
+				toast.error(`Login failed: ${errorData.error}`, {
 					position: "bottom-right",
 				})
 			}
 		} catch (error) {
-			toast.error("Failed to connect to the server.", {
+			// Handle network or unexpected errors
+			toast.error("Failed to connect to the server. Please try again later.", {
 				position: "bottom-right",
 			})
 			console.error("Login error:", error)
