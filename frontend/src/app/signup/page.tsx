@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { ArrowRight, Eye, EyeOff } from "lucide-react" // Import eye icons
+import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react" // Import eye icons
 import { toast } from "sonner" // Import toast from Sonner
 
 export default function SignupPage(): React.ReactElement {
@@ -17,6 +17,18 @@ export default function SignupPage(): React.ReactElement {
 	const [isLoading, setIsLoading] = useState(false)
 	const [showPassword, setShowPassword] = useState(false) // State to toggle password visibility
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false) // State to toggle confirm password visibility
+	const [signupSuccess, setSignupSuccess] = useState(false)
+	const [verificationToken, setVerificationToken] = useState("")
+	const [resendTimer, setResendTimer] = useState(60)
+	const [canResend, setCanResend] = useState(false)
+	const [isResending, setIsResending] = useState(false)
+	useEffect(() => {
+		if (signupSuccess && resendTimer > 0) {
+			const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000)
+			return () => clearTimeout(timer)
+		}
+		if (resendTimer === 0) setCanResend(true)
+	}, [signupSuccess, resendTimer])
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value, type, checked } = e.target
@@ -83,6 +95,14 @@ export default function SignupPage(): React.ReactElement {
 
 			if (response.ok) {
 				const data = await response.json()
+				if (data.error) {
+					toast.error(data.error, {
+						position: "bottom-right",
+						style: { backgroundColor: "red", color: "white" },
+					})
+					setIsLoading(false)
+					return
+				}
 				toast.success(
 					data.message || "Signup successful! Please verify your email.",
 					{
@@ -90,6 +110,10 @@ export default function SignupPage(): React.ReactElement {
 						style: { backgroundColor: "green", color: "white" }, // Green background for success
 					},
 				)
+				setSignupSuccess(true)
+				setVerificationToken(data.token)
+				setResendTimer(60)
+				setCanResend(false)
 			} else {
 				const errorData = await response.json()
 				toast.error(errorData.error || "An error occurred during signup.", {
@@ -102,8 +126,42 @@ export default function SignupPage(): React.ReactElement {
 				position: "bottom-right",
 				style: { backgroundColor: "red", color: "white" }, // Red background for error
 			})
+			console.error("Signup error:", error)
 		} finally {
 			setIsLoading(false)
+		}
+	}
+
+	const handleResend = async () => {
+		if (!verificationToken) return
+		setIsResending(true)
+		try {
+			const response = await fetch(
+				`http://localhost:8080/api/auth/resend/${verificationToken}`,
+				{ method: "POST" },
+			)
+			const data = await response.json()
+			if (response.ok) {
+				toast.success("Verification email resent.", {
+					position: "top-center",
+					style: { backgroundColor: "green", color: "white" },
+				})
+				if (data.token) setVerificationToken(data.token)
+				setResendTimer(60)
+				setCanResend(false)
+			} else {
+				toast.error(data.error || "Failed to resend verification email.", {
+					position: "bottom-right",
+					style: { backgroundColor: "red", color: "white" },
+				})
+			}
+		} catch {
+			toast.error("Failed to connect to the server.", {
+				position: "bottom-right",
+				style: { backgroundColor: "red", color: "white" },
+			})
+		} finally {
+			setIsResending(false)
 		}
 	}
 
@@ -146,166 +204,198 @@ export default function SignupPage(): React.ReactElement {
 					</div>
 
 					{/* Form */}
-					<form
-						onSubmit={handleSubmit}
-						className="space-y-4 mb-6"
-					>
-						{/* Username */}
-						<div>
-							<label
-								htmlFor="username"
-								className="block text-sm font-medium mb-2"
-							>
-								Username
-							</label>
-							<input
-								type="text"
-								id="username"
-								name="username"
-								value={formData.username}
-								onChange={handleInputChange}
-								placeholder="john_doe"
-								className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
-								required
-							/>
-						</div>
-
-						{/* Email */}
-						<div>
-							<label
-								htmlFor="email"
-								className="block text-sm font-medium mb-2"
-							>
-								Email Address
-							</label>
-							<input
-								type="email"
-								id="email"
-								name="email"
-								value={formData.email}
-								onChange={handleInputChange}
-								placeholder="you@example.com"
-								className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
-								required
-							/>
-						</div>
-
-						{/* Password */}
-						<div>
-							<label
-								htmlFor="password"
-								className="block text-sm font-medium mb-2"
-							>
-								Password
-							</label>
-							<div className="relative">
-								<input
-									type={showPassword ? "text" : "password"} // Toggle between "text" and "password"
-									id="password"
-									name="password"
-									value={formData.password}
-									onChange={handleInputChange}
-									placeholder="••••••••"
-									className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
-									required
-								/>
-								<button
-									type="button"
-									onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
-									className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white"
-								>
-									{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-								</button>
-							</div>
-						</div>
-
-						{/* Confirm Password */}
-						<div>
-							<label
-								htmlFor="confirmPassword"
-								className="block text-sm font-medium mb-2"
-							>
-								Confirm Password
-							</label>
-							<div className="relative">
-								<input
-									type={showConfirmPassword ? "text" : "password"} // Toggle between "text" and "password"
-									id="confirmPassword"
-									name="confirmPassword"
-									value={formData.confirmPassword}
-									onChange={handleInputChange}
-									placeholder="••••••••"
-									className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
-									required
-								/>
-								<button
-									type="button"
-									onClick={() => setShowConfirmPassword(!showConfirmPassword)} // Toggle confirm password visibility
-									className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white"
-								>
-									{showConfirmPassword ? (
-										<EyeOff size={20} />
-									) : (
-										<Eye size={20} />
-									)}
-								</button>
-							</div>
-						</div>
-
-						{/* Terms Checkbox */}
-						<div className="flex items-start gap-3 pt-2">
-							<input
-								type="checkbox"
-								id="terms"
-								name="agreedToTerms"
-								checked={formData.agreedToTerms}
-								onChange={handleInputChange}
-								className="mt-1 w-5 h-5 rounded border border-white/10 bg-white/5 cursor-pointer accent-violet-600"
-								required
-							/>
-							<label
-								htmlFor="terms"
-								className="text-sm text-gray-400 cursor-pointer"
-							>
-								I agree to the{" "}
-								<Link
-									href="#"
-									className="text-violet-400 hover:text-violet-300 transition-colors"
-								>
-									Terms of Service
-								</Link>{" "}
-								and{" "}
-								<Link
-									href="#"
-									className="text-violet-400 hover:text-violet-300 transition-colors"
-								>
-									Privacy Policy
-								</Link>
-							</label>
-						</div>
-
-						{/* Submit Button */}
-						<button
-							type="submit"
-							disabled={isLoading}
-							className="w-full py-3 px-4 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-sm transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-6 group"
+					{!signupSuccess ? (
+						<form
+							onSubmit={handleSubmit}
+							className="space-y-4 mb-6"
 						>
-							{isLoading ? (
-								<>
-									<div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-									Creating account...
-								</>
-							) : (
-								<>
-									Create Account
-									<ArrowRight
-										size={18}
-										className="group-hover:translate-x-1 transition-transform"
+							{/* Username */}
+							<div>
+								<label
+									htmlFor="username"
+									className="block text-sm font-medium mb-2"
+								>
+									Username
+								</label>
+								<input
+									type="text"
+									id="username"
+									name="username"
+									value={formData.username}
+									onChange={handleInputChange}
+									placeholder="john_doe"
+									className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
+									required
+								/>
+							</div>
+
+							{/* Email */}
+							<div>
+								<label
+									htmlFor="email"
+									className="block text-sm font-medium mb-2"
+								>
+									Email Address
+								</label>
+								<input
+									type="email"
+									id="email"
+									name="email"
+									value={formData.email}
+									onChange={handleInputChange}
+									placeholder="you@example.com"
+									className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
+									required
+								/>
+							</div>
+
+							{/* Password */}
+							<div>
+								<label
+									htmlFor="password"
+									className="block text-sm font-medium mb-2"
+								>
+									Password
+								</label>
+								<div className="relative">
+									<input
+										type={showPassword ? "text" : "password"} // Toggle between "text" and "password"
+										id="password"
+										name="password"
+										value={formData.password}
+										onChange={handleInputChange}
+										placeholder="••••••••"
+										className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
+										required
 									/>
-								</>
-							)}
-						</button>
-					</form>
+									<button
+										type="button"
+										onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
+										className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white"
+									>
+										{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+									</button>
+								</div>
+							</div>
+
+							{/* Confirm Password */}
+							<div>
+								<label
+									htmlFor="confirmPassword"
+									className="block text-sm font-medium mb-2"
+								>
+									Confirm Password
+								</label>
+								<div className="relative">
+									<input
+										type={showConfirmPassword ? "text" : "password"} // Toggle between "text" and "password"
+										id="confirmPassword"
+										name="confirmPassword"
+										value={formData.confirmPassword}
+										onChange={handleInputChange}
+										placeholder="••••••••"
+										className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-sm focus:border-violet-600 focus:outline-none transition-colors text-white placeholder-gray-500"
+										required
+									/>
+									<button
+										type="button"
+										onClick={() => setShowConfirmPassword(!showConfirmPassword)} // Toggle confirm password visibility
+										className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white"
+									>
+										{showConfirmPassword ? (
+											<EyeOff size={20} />
+										) : (
+											<Eye size={20} />
+										)}
+									</button>
+								</div>
+							</div>
+
+							{/* Terms Checkbox */}
+							<div className="flex items-start gap-3 pt-2">
+								<input
+									type="checkbox"
+									id="terms"
+									name="agreedToTerms"
+									checked={formData.agreedToTerms}
+									onChange={handleInputChange}
+									className="mt-1 w-5 h-5 rounded border border-white/10 bg-white/5 cursor-pointer accent-violet-600"
+									required
+								/>
+								<label
+									htmlFor="terms"
+									className="text-sm text-gray-400 cursor-pointer"
+								>
+									I agree to the{" "}
+									<Link
+										href="#"
+										className="text-violet-400 hover:text-violet-300 transition-colors"
+									>
+										Terms of Service
+									</Link>{" "}
+									and{" "}
+									<Link
+										href="#"
+										className="text-violet-400 hover:text-violet-300 transition-colors"
+									>
+										Privacy Policy
+									</Link>
+								</label>
+							</div>
+
+							{/* Submit Button */}
+							<button
+								type="submit"
+								disabled={isLoading}
+								className="w-full py-3 px-4 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-sm transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-6 group"
+							>
+								{isLoading ? (
+									<>
+										<div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+										Creating account...
+									</>
+								) : (
+									<>
+										Create Account
+										<ArrowRight
+											size={18}
+											className="group-hover:translate-x-1 transition-transform"
+										/>
+									</>
+								)}
+							</button>
+						</form>
+					) : (
+						<div className="space-y-6 text-center">
+							<h2 className="text-2xl text-violet-400 font-bold">
+								Signup successful!
+							</h2>
+							<p className="text-violet-300">
+								Please verify your email address. Check your inbox and spam
+								folder.
+							</p>
+							<button
+								onClick={handleResend}
+								disabled={!canResend || isResending}
+								className={`mt-4 px-6 py-2 bg-violet-500 text-white rounded-sm transition-colors ${
+									!canResend || isResending
+										? "opacity-50 cursor-not-allowed"
+										: "hover:bg-violet-600"
+								} flex items-center justify-center gap-2`}
+							>
+								{isResending ? (
+									<>
+										<Loader2 className="w-5 h-5 animate-spin" />
+										Sending...
+									</>
+								) : canResend ? (
+									"Resend Verification"
+								) : (
+									`Resend Verification (${resendTimer}s)`
+								)}
+							</button>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

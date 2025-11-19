@@ -46,10 +46,11 @@ public class AuthService {
 
     public Map<String, Object> login(String identifier, String password) throws AuthenticationException {
 
-        String username = userRepository.findByUsername(identifier)
-                .map(User::getUsername)
-                .or(() -> userRepository.findByEmail(identifier).map(User::getUsername))
+        User user = userRepository.findByUsername(identifier)
+                .or(() -> userRepository.findByEmail(identifier))
                 .orElseThrow(() -> new IllegalArgumentException("No user found for given identifier"));
+
+        String username = user.getUsername();
 
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password)
@@ -67,7 +68,9 @@ public class AuthService {
                 "roles", roles,
                 "token", token,
                 "accessToken", token,
-                "message", "Login successful"
+                "message", "Login successful",
+                "profileCompleted", user.isProfileCompleted(),
+                "emailVerified", user.isEmailVerified()
         );
     }
 
