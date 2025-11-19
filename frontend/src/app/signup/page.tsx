@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { ArrowRight, Eye, EyeOff } from "lucide-react" // Import eye icons
+import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react" // Import eye icons
 import { toast } from "sonner" // Import toast from Sonner
 
 export default function SignupPage(): React.ReactElement {
@@ -21,7 +21,7 @@ export default function SignupPage(): React.ReactElement {
 	const [verificationToken, setVerificationToken] = useState("")
 	const [resendTimer, setResendTimer] = useState(60)
 	const [canResend, setCanResend] = useState(false)
-
+const [isResending, setIsResending] = useState(false);
 	useEffect(() => {
 		if (signupSuccess && resendTimer > 0) {
 			const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000)
@@ -132,33 +132,37 @@ export default function SignupPage(): React.ReactElement {
 	}
 
 	const handleResend = async () => {
-		if (!verificationToken) return
-		try {
-			const response = await fetch(
-				`http://localhost:8080/api/auth/resend/${verificationToken}`,
-				{ method: "POST" },
-			)
-			if (response.ok) {
-				toast.success("Verification email resent.", {
-					position: "top-center",
-					style: { backgroundColor: "green", color: "white" },
-				})
-				setResendTimer(60)
-				setCanResend(false)
-			} else {
-				const errorData = await response.json()
-				toast.error(errorData.error || "Failed to resend verification email.", {
-					position: "bottom-right",
-					style: { backgroundColor: "red", color: "white" },
-				})
-			}
-		} catch {
-			toast.error("Failed to connect to the server.", {
-				position: "bottom-right",
-				style: { backgroundColor: "red", color: "white" },
-			})
-		}
-	}
+      if (!verificationToken) return;
+      setIsResending(true);
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/auth/resend/${verificationToken}`,
+          { method: "POST" }
+        );
+        const data = await response.json();
+        if (response.ok) {
+          toast.success("Verification email resent.", {
+            position: "top-center",
+            style: { backgroundColor: "green", color: "white" },
+          });
+          if (data.token) setVerificationToken(data.token);
+          setResendTimer(60);
+          setCanResend(false);
+        } else {
+          toast.error(data.error || "Failed to resend verification email.", {
+            position: "bottom-right",
+            style: { backgroundColor: "red", color: "white" },
+          });
+        }
+      } catch {
+        toast.error("Failed to connect to the server.", {
+          position: "bottom-right",
+          style: { backgroundColor: "red", color: "white" },
+        });
+      } finally {
+        setIsResending(false);
+      }
+    };
 
 	return (
 		<div className="min-h-screen bg-black text-white flex flex-col">
@@ -371,16 +375,24 @@ export default function SignupPage(): React.ReactElement {
 							</p>
 							<button
 								onClick={handleResend}
-								disabled={!canResend}
+								disabled={!canResend || isResending}
 								className={`mt-4 px-6 py-2 bg-violet-500 text-white rounded-sm transition-colors ${
-									!canResend
-										? "opacity-50 cursor-not-allowed"
-										: "hover:bg-violet-600"
-								}`}
+									!canResend || isResending
+                                          ? "opacity-50 cursor-not-allowed"
+                                          : "hover:bg-violet-600"
+                                      } flex items-center justify-center gap-2`}
 							>
-								{canResend
-									? "Resend Verification"
-									: `Resend Verification (${resendTimer}s)`}
+							{isResending ? (
+                                <>
+                                  <Loader2 className="w-5 h-5 animate-spin" />
+                                  Sending...
+                                </>
+                              ) :
+								canResend ? (
+                                    "Resend Verification"
+                                  ) : (
+                                    `Resend Verification (${resendTimer}s)`
+                                  )}
 							</button>
 						</div>
 					)}
