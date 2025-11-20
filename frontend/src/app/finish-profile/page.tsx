@@ -4,6 +4,9 @@ import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { ArrowRight, ArrowLeft, Plus, X, AlertCircle } from "lucide-react"
+import { FinishProfileRequest } from "@/lib/types/finishProfile"
+import { submitFinishProfile } from "@/lib/api/finishProfile"
+import { toast } from "sonner"
 
 export default function ProfileSetupPage(): React.ReactElement {
 	const [currentStep, setCurrentStep] = useState(1)
@@ -92,9 +95,43 @@ export default function ProfileSetupPage(): React.ReactElement {
 		if (currentStep > 1) setCurrentStep(currentStep - 1)
 	}
 
-	const handleFinish = () => {
-		console.log("Profile setup completed:", formData)
-		// Handle profile completion
+	const handleFinish = async () => {
+		const payload: FinishProfileRequest = {
+			fullName: formData.fullName,
+			country: formData.country,
+			address: formData.address,
+			phone: `${formData.phoneFormat}${formData.phoneNumber}`,
+			userType: formData.userType,
+			industry: formData.industry,
+			title: formData.title,
+			skills: formData.skills,
+		}
+
+		try {
+			const result = await submitFinishProfile(payload)
+
+			if (result.success) {
+				toast.success("Profile completed successfully!", {
+					position: "top-center",
+					style: { backgroundColor: "green", color: "white" },
+				})
+				window.location.href = "/feed"
+			} else {
+				toast.error(
+					result.error || "Failed to complete profile. Please try again.",
+					{
+						position: "bottom-right",
+						style: { backgroundColor: "red", color: "white" },
+					},
+				)
+			}
+		} catch (error) {
+			toast.error("An unexpected error occurred. Please try again later.", {
+				position: "bottom-right",
+				style: { backgroundColor: "red", color: "white" },
+			})
+			console.error("Error completing profile:", error)
+		}
 	}
 
 	return (
