@@ -1,3 +1,4 @@
+// java
 package com.vencentdev.devmatch.security;
 
 import com.vencentdev.devmatch.util.JwtUtil;
@@ -7,8 +8,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.WebUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -26,10 +29,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
-        String header = request.getHeader("Authorization");
+        String token = null;
 
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
+        // try cookie first
+        Cookie cookie = WebUtils.getCookie(request, "ACCESS_TOKEN");
+        if (cookie != null) {
+            token = cookie.getValue();
+        }
+
+        // fallback to Authorization header
+        if (token == null) {
+            String header = request.getHeader("Authorization");
+            if (header != null && header.startsWith("Bearer ")) {
+                token = header.substring(7);
+            }
+        }
+
+        if (token != null) {
             try {
                 if (jwtUtil.validateToken(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
                     String username = jwtUtil.getUsernameFromToken(token);
@@ -41,7 +57,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(auth);
 
-                    // Debug log
                     System.out.println("Authenticated user: " + username + " for request "
                             + request.getMethod() + " " + request.getRequestURI());
                 }
@@ -53,7 +68,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 System.out.println("JWT processing error: " + ex.getMessage());
             }
         } else {
-            // Debug log if no token
             System.out.println("No JWT found for request " + request.getMethod() + " " + request.getRequestURI());
         }
 

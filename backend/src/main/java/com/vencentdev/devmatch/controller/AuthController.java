@@ -10,10 +10,13 @@ import com.vencentdev.devmatch.service.EmailService;
 import com.vencentdev.devmatch.service.EmailServiceImpl;
 import com.vencentdev.devmatch.service.VerificationTokenService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -34,7 +37,26 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
         try {
             Map<String, Object> resp = authService.login(req.identifier(), req.password());
-            return ResponseEntity.ok(resp);
+            String token = (String) resp.get("token");
+            if (token == null) token = (String) resp.get("accessToken");
+
+            // create HttpOnly cookie (set secure(true) in production with HTTPS)
+            ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", token)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(7 * 24 * 60 * 60) // 7 days
+                    .sameSite("Lax")
+                    .build();
+
+            // remove token from body to avoid client-side storage (optional)
+            Map<String, Object> body = new HashMap<>(resp);
+            body.remove("token");
+            body.remove("accessToken");
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(body);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
