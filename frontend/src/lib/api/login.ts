@@ -11,7 +11,17 @@ export const submitLogin = async (payload: LoginRequest): Promise<LoginResponse>
         });
 
         const text = await response.text();
-        let data: any = {};
+        type LoginResponseData = {
+            token?: string;
+            access_token?: string;
+            jwt?: string;
+            error?: string;
+            message?: string;
+            profileCompleted?: boolean;
+            profile_completed?: boolean;
+            [key: string]: unknown;
+        };
+        let data: LoginResponseData = {};
         try { data = text ? JSON.parse(text) : {}; } catch { data = { raw: text }; }
 
         // try body token fields

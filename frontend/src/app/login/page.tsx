@@ -23,23 +23,24 @@ export default function LoginPage(): React.ReactElement {
 	useEffect(() => {
 		const token =
 			localStorage.getItem("authToken") || sessionStorage.getItem("authToken")
+		console.log("Token retrieved:", token) // Debugging
 
-		// Guard: only call when a non-empty, plausible JWT is present
-		if (!token || token === "null" || token === "undefined") return
-		// simple heuristic: JWTs have two dots (header.payload.signature)
-		if (token.split(".").length < 3) return
-
-		fetchUserProfile(token)
-			.then((data) => {
-				if (data.profile_completed) {
-					router.push("/feed")
-				} else {
-					router.push("/finish-profile")
-				}
-			})
-			.catch((error) => {
-				console.error("Error fetching profile status:", error)
-			})
+		if (token) {
+			fetchUserProfile(token)
+				.then((data) => {
+					console.log("Profile completed status:", data.profile_completed) // Debugging
+					if (data.profile_completed) {
+						console.log("Redirecting to /feed")
+						router.replace("/feed") // Use `replace` to avoid adding to history
+					} else {
+						console.log("Redirecting to /finish-profile")
+						router.replace("/finish-profile")
+					}
+				})
+				.catch((error) => {
+					console.error("Error fetching profile status:", error)
+				})
+		}
 	}, [router])
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
