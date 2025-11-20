@@ -1,16 +1,16 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
-import { submitLogin } from "@/lib/api/login" // Import the refactored API function
-import { fetchUserProfile } from "@/lib/api/profile" // Import the profile fetching function
-import { LoginRequest } from "@/lib/types/login" // Import the login request type
+import { submitLogin } from "@/lib/api/login"
+import { LoginRequest } from "@/lib/types/login"
+import { authGuard } from "@/lib/HOC/authGuard"
 
-export default function LoginPage(): React.ReactElement {
+function LoginPage(): React.ReactElement {
 	const [formData, setFormData] = useState<LoginRequest>({
 		identifier: "",
 		password: "",
@@ -18,30 +18,6 @@ export default function LoginPage(): React.ReactElement {
 	const [rememberMe, setRememberMe] = useState(false)
 	const [isLoading, setIsLoading] = useState(false)
 	const router = useRouter()
-
-	// Check if the user is already logged in
-	useEffect(() => {
-		const token =
-			localStorage.getItem("authToken") || sessionStorage.getItem("authToken")
-		console.log("Token retrieved:", token) // Debugging
-
-		if (token) {
-			fetchUserProfile(token)
-				.then((data) => {
-					console.log("Profile completed status:", data.profile_completed) // Debugging
-					if (data.profile_completed) {
-						console.log("Redirecting to /feed")
-						router.replace("/feed") // Use `replace` to avoid adding to history
-					} else {
-						console.log("Redirecting to /finish-profile")
-						router.replace("/finish-profile")
-					}
-				})
-				.catch((error) => {
-					console.error("Error fetching profile status:", error)
-				})
-		}
-	}, [router])
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value, checked } = e.target
@@ -81,8 +57,16 @@ export default function LoginPage(): React.ReactElement {
 				// Save the token based on the "Remember Me" checkbox
 				if (rememberMe) {
 					localStorage.setItem("authToken", data.token)
+					localStorage.setItem(
+						"profileCompleted",
+						data.profileCompleted.toString(),
+					)
 				} else {
 					sessionStorage.setItem("authToken", data.token)
+					sessionStorage.setItem(
+						"profileCompleted",
+						data.profileCompleted.toString(),
+					)
 				}
 			} else {
 				// Display the error message from the API
@@ -240,3 +224,5 @@ export default function LoginPage(): React.ReactElement {
 		</div>
 	)
 }
+
+export default authGuard(LoginPage)
