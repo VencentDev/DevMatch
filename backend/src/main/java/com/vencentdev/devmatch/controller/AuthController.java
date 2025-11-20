@@ -39,6 +39,12 @@ public class AuthController {
             Map<String, Object> resp = authService.login(req.identifier(), req.password());
             String token = (String) resp.get("token");
             if (token == null) token = (String) resp.get("accessToken");
+            if (token == null) token = (String) resp.get("jwt");
+
+            if (token == null) {
+                // Auth succeeded but no token generated — return explicit error
+                return ResponseEntity.status(500).body(Map.of("error", "Authentication succeeded but no token was generated"));
+            }
 
             // create HttpOnly cookie (set secure(true) in production with HTTPS)
             ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", token)
@@ -49,14 +55,16 @@ public class AuthController {
                     .sameSite("Lax")
                     .build();
 
-            // remove token from body to avoid client-side storage (optional)
+            // copy response body and ensure token is present for SPA clients
             Map<String, Object> body = new HashMap<>(resp);
-            body.remove("token");
-            body.remove("accessToken");
+            body.put("token", token);
+            body.put("accessToken", token); // keep both keys for compatibility
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(body);
+            ResponseEntity.BodyBuilder builder = ResponseEntity.ok();
+            builder.header(HttpHeaders.SET_COOKIE, cookie.toString());
+            builder.header(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+
+            return builder.body(body);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
