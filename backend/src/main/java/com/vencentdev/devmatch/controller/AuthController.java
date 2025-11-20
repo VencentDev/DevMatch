@@ -10,10 +10,13 @@ import com.vencentdev.devmatch.service.EmailService;
 import com.vencentdev.devmatch.service.EmailServiceImpl;
 import com.vencentdev.devmatch.service.VerificationTokenService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -34,7 +37,34 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
         try {
             Map<String, Object> resp = authService.login(req.identifier(), req.password());
-            return ResponseEntity.ok(resp);
+            String token = (String) resp.get("token");
+            if (token == null) token = (String) resp.get("accessToken");
+            if (token == null) token = (String) resp.get("jwt");
+
+            if (token == null) {
+                // Auth succeeded but no token generated — return explicit error
+                return ResponseEntity.status(500).body(Map.of("error", "Authentication succeeded but no token was generated"));
+            }
+
+            // create HttpOnly cookie (set secure(true) in production with HTTPS)
+            ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", token)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(7 * 24 * 60 * 60) // 7 days
+                    .sameSite("Lax")
+                    .build();
+
+            // copy response body and ensure token is present for SPA clients
+            Map<String, Object> body = new HashMap<>(resp);
+            body.put("token", token);
+            body.put("accessToken", token); // keep both keys for compatibility
+
+            ResponseEntity.BodyBuilder builder = ResponseEntity.ok();
+            builder.header(HttpHeaders.SET_COOKIE, cookie.toString());
+            builder.header(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+
+            return builder.body(body);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {

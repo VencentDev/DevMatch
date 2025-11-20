@@ -45,33 +45,36 @@ public class AuthService {
     }
 
     public Map<String, Object> login(String identifier, String password) throws AuthenticationException {
-
+        // Find user by username or email
         User user = userRepository.findByUsername(identifier)
                 .or(() -> userRepository.findByEmail(identifier))
-                .orElseThrow(() -> new IllegalArgumentException("No user found for given identifier"));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid username/email"));
 
-        String username = user.getUsername();
+        // Authenticate the user
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(user.getUsername(), password)
+            );
+            SecurityContextHolder.getContext().setAuthentication(auth);
 
-        Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
-        );
-        SecurityContextHolder.getContext().setAuthentication(auth);
+            List<String> roles = auth.getAuthorities().stream()
+                    .map(a -> a.getAuthority())
+                    .collect(Collectors.toList());
 
-        List<String> roles = auth.getAuthorities().stream()
-                .map(a -> a.getAuthority())
-                .collect(Collectors.toList());
+            String token = jwtUtil.generateToken(user.getUsername());
 
-        String token = jwtUtil.generateToken(username);
-
-        return Map.of(
-                "username", username,
-                "roles", roles,
-                "token", token,
-                "accessToken", token,
-                "message", "Login successful",
-                "profileCompleted", user.isProfileCompleted(),
-                "emailVerified", user.isEmailVerified()
-        );
+            return Map.of(
+                    "username", user.getUsername(),
+                    "roles", roles,
+                    "token", token,
+                    "accessToken", token,
+                    "message", "Login successful",
+                    "profileCompleted", user.isProfileCompleted(),
+                    "emailVerified", user.isEmailVerified()
+            );
+        } catch (AuthenticationException e) {
+            throw new AuthenticationException("Invalid username/email or password") {};
+        }
     }
 
     public Map<String, Object> signup(SignupRequest req) {
