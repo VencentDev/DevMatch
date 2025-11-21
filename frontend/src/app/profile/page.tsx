@@ -6,10 +6,10 @@ import AccountHeader from "@/app/components/account-header"
 import ProfileSidebar from "@/app/components/profile/profile-sidebar"
 import ProfileHeader from "@/app/components/profile/profile-header"
 import ProfileAbout from "@/app/components/profile/profile-about"
-import SkillsSection from "@/app/components/profile/skills/skills-section"
-import EducationSection from "@/app/components/profile/education/education-section"
-import CertificationsSection from "@/app/components/profile/certification/certifications-section"
-import ExperienceSection from "@/app/components/profile/experience/experience-section"
+import SkillsSection from "@/app/components/profile/(freelancer)/skills/skills-section"
+import EducationSection from "@/app/components/profile/(freelancer)/education/education-section"
+import CertificationsSection from "@/app/components/profile/(freelancer)/certification/certifications-section"
+import ExperienceSection from "@/app/components/profile/(freelancer)/experience/experience-section"
 
 export default function ProfilePage() {
 	return (

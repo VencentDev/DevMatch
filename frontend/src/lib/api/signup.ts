@@ -1,8 +1,8 @@
-import { FinishProfileRequest } from "../types/finishProfile";
+import { SignupRequest } from "../types/signupRequest";
 
-export const submitFinishProfile = async (payload: FinishProfileRequest) => {
+export const submitSignup = async (payload: SignupRequest) => {
     try {
-        const response = await fetch("http://localhost:8080/api/auth/finish-profile", {
+        const response = await fetch("http://localhost:8080/api/auth/signup", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
