@@ -51,6 +51,7 @@ export const StepOne: React.FC<StepOneProps> = ({
 					Country
 				</label>
 				<CountryDropdown
+					value={formData.country} // Pass the current country name
 					onChange={handleCountryChange}
 					placeholder="Select a country"
 				/>

@@ -1,5 +1,5 @@
 "use client"
-import React, { useCallback, useState, forwardRef, useEffect } from "react"
+import React, { useCallback, useMemo, useState, forwardRef } from "react"
 
 // shadcn
 import {
@@ -43,7 +43,7 @@ export interface Country {
 interface CountryDropdownProps {
 	options?: Country[]
 	onChange?: (country: Country) => void
-	defaultValue?: string
+	value?: string // The currently selected country name
 	disabled?: boolean
 	placeholder?: string
 	slim?: boolean
@@ -56,7 +56,7 @@ const CountryDropdownComponent = (
 				country.emoji && country.status !== "deleted" && country.ioc !== "PRK",
 		),
 		onChange,
-		defaultValue,
+		value,
 		disabled = false,
 		placeholder = "Select a country",
 		slim = false,
@@ -65,25 +65,16 @@ const CountryDropdownComponent = (
 	ref: React.ForwardedRef<HTMLButtonElement>,
 ) => {
 	const [open, setOpen] = useState(false)
-	const [selectedCountry, setSelectedCountry] = useState<Country | undefined>(
-		undefined,
-	)
 
-	// Initialize the selected country based on defaultValue
-	useEffect(() => {
-		if (defaultValue) {
-			const initialCountry = options.find(
-				(country) =>
-					country.alpha3 === defaultValue || country.alpha2 === defaultValue,
-			)
-			setSelectedCountry(initialCountry)
-		}
-	}, [defaultValue, options])
+	// Find the currently selected country based on the `value` prop
+	const selectedCountry = useMemo(
+		() => options.find((country) => country.name === value),
+		[value, options],
+	)
 
 	// Handle country selection
 	const handleSelect = useCallback(
 		(country: Country) => {
-			setSelectedCountry(country)
 			onChange?.(country) // Notify parent component
 			setOpen(false)
 		},
