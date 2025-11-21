@@ -1,4 +1,4 @@
-import { LoginRequest, LoginResponse } from "@/lib/types/login";
+import { LoginRequest, LoginResponse } from "@/lib/types/loginRequest";
 
 export const submitLogin = async (payload: LoginRequest): Promise<LoginResponse> => {
     try {

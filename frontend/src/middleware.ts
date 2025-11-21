@@ -8,6 +8,12 @@ export function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
   const pathname = req.nextUrl.pathname;
 
+    if (pathname === "/") {
+    url.pathname = "/home-page";
+    return NextResponse.redirect(url);
+  }
+
+
   // If authentication is required and the user is not authenticated
   if (pathname.startsWith("/finish-profile") && !token) {
     url.pathname = "/login";
@@ -32,5 +38,5 @@ export function middleware(req: NextRequest) {
 
 // Apply middleware to specific routes
 export const config = {
-  matcher: ["/finish-profile/:path*", "/login"], // Apply middleware to the finish-profile and login routes
+  matcher: ["/", "/finish-profile/:path*", "/login"], // Apply middleware to "/", finish-profile, and login routes
 };

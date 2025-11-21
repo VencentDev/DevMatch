@@ -5,6 +5,8 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react" // Import eye icons
 import { toast } from "sonner" // Import toast from Sonner
+import { submitSignup } from "@/lib/api/signup"
+import { resendVerification } from "@/lib/api/resendVerification"
 
 export default function SignupPage(): React.ReactElement {
 	const [formData, setFormData] = useState({
@@ -15,19 +17,21 @@ export default function SignupPage(): React.ReactElement {
 		agreedToTerms: false,
 	})
 	const [isLoading, setIsLoading] = useState(false)
-	const [showPassword, setShowPassword] = useState(false) // State to toggle password visibility
-	const [showConfirmPassword, setShowConfirmPassword] = useState(false) // State to toggle confirm password visibility
+	const [showPassword, setShowPassword] = useState(false)
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 	const [signupSuccess, setSignupSuccess] = useState(false)
 	const [verificationToken, setVerificationToken] = useState("")
 	const [resendTimer, setResendTimer] = useState(60)
-	const [canResend, setCanResend] = useState(false)
 	const [isResending, setIsResending] = useState(false)
+
+	// Derive `canResend` directly from `resendTimer`
+	const canResend = resendTimer === 0
+
 	useEffect(() => {
 		if (signupSuccess && resendTimer > 0) {
 			const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000)
 			return () => clearTimeout(timer)
 		}
-		if (resendTimer === 0) setCanResend(true)
 	}, [signupSuccess, resendTimer])
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,7 +55,6 @@ export default function SignupPage(): React.ReactElement {
 		) {
 			toast.error("All fields are required.", {
 				position: "bottom-right",
-				style: { backgroundColor: "red", color: "white" }, // Red background for error
 			})
 			setIsLoading(false)
 			return
@@ -60,7 +63,6 @@ export default function SignupPage(): React.ReactElement {
 		if (formData.password !== formData.confirmPassword) {
 			toast.error("Passwords do not match.", {
 				position: "bottom-right",
-				style: { backgroundColor: "red", color: "white" }, // Red background for error
 			})
 			setIsLoading(false)
 			return
@@ -72,97 +74,52 @@ export default function SignupPage(): React.ReactElement {
 				"Password must be at least 8 characters long, include 1 uppercase letter, 1 number, and 1 special character.",
 				{
 					position: "bottom-right",
-					style: { backgroundColor: "red", color: "white" }, // Red background for error
 				},
 			)
 			setIsLoading(false)
 			return
 		}
 
-		try {
-			const response = await fetch("http://localhost:8080/api/auth/signup", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					username: formData.username,
-					email: formData.email,
-					password: formData.password,
-					confirmPassword: formData.confirmPassword,
-				}),
-			})
+		const result = await submitSignup(formData)
 
-			if (response.ok) {
-				const data = await response.json()
-				if (data.error) {
-					toast.error(data.error, {
-						position: "bottom-right",
-						style: { backgroundColor: "red", color: "white" },
-					})
-					setIsLoading(false)
-					return
-				}
-				toast.success(
-					data.message || "Signup successful! Please verify your email.",
-					{
-						position: "top-center",
-						style: { backgroundColor: "green", color: "white" }, // Green background for success
-					},
-				)
-				setSignupSuccess(true)
-				setVerificationToken(data.token)
-				setResendTimer(60)
-				setCanResend(false)
-			} else {
-				const errorData = await response.json()
-				toast.error(errorData.error || "An error occurred during signup.", {
-					position: "bottom-right",
-					style: { backgroundColor: "red", color: "white" }, // Red background for error
-				})
-			}
-		} catch (error) {
-			toast.error("Failed to connect to the server. Please try again later.", {
+		if (result.success) {
+			toast.success(
+				result.data.message || "Signup successful! Please verify your email.",
+				{
+					position: "top-center",
+				},
+			)
+			setSignupSuccess(true)
+			setVerificationToken(result.data.token)
+			setResendTimer(60)
+		} else {
+			toast.error(result.error || "An error occurred during signup.", {
 				position: "bottom-right",
-				style: { backgroundColor: "red", color: "white" }, // Red background for error
 			})
-			console.error("Signup error:", error)
-		} finally {
-			setIsLoading(false)
 		}
+
+		setIsLoading(false)
 	}
 
 	const handleResend = async () => {
 		if (!verificationToken) return
 		setIsResending(true)
-		try {
-			const response = await fetch(
-				`http://localhost:8080/api/auth/resend/${verificationToken}`,
-				{ method: "POST" },
-			)
-			const data = await response.json()
-			if (response.ok) {
-				toast.success("Verification email resent.", {
-					position: "top-center",
-					style: { backgroundColor: "green", color: "white" },
-				})
-				if (data.token) setVerificationToken(data.token)
-				setResendTimer(60)
-				setCanResend(false)
-			} else {
-				toast.error(data.error || "Failed to resend verification email.", {
-					position: "bottom-right",
-					style: { backgroundColor: "red", color: "white" },
-				})
-			}
-		} catch {
-			toast.error("Failed to connect to the server.", {
-				position: "bottom-right",
-				style: { backgroundColor: "red", color: "white" },
+
+		const result = await resendVerification(verificationToken)
+
+		if (result.success) {
+			toast.success("Verification email resent.", {
+				position: "top-center",
 			})
-		} finally {
-			setIsResending(false)
+			if (result.data.token) setVerificationToken(result.data.token)
+			setResendTimer(60)
+		} else {
+			toast.error(result.error || "Failed to resend verification email.", {
+				position: "bottom-right",
+			})
 		}
+
+		setIsResending(false)
 	}
 
 	return (
