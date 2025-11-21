@@ -1,33 +1,16 @@
 import React from "react"
+import { FinishProfileRequest } from "@/lib/types/finishProfile"
 
 interface StepTwoProps {
-	formData: {
-		fullName: string
-		country: string
-		address: string
-		phoneNumber: string
-		phoneFormat: string
-		userType: string
-		industry: string
-		title: string
-		skills: string[]
-	}
-	setFormData: React.Dispatch<
-		React.SetStateAction<{
-			fullName: string
-			country: string
-			address: string
-			phoneNumber: string
-			phoneFormat: string
-			userType: string
-			industry: string
-			title: string
-			skills: string[]
-		}>
-	>
+	formData: FinishProfileRequest
+	setFormData: React.Dispatch<React.SetStateAction<FinishProfileRequest>>
 }
 
 export const StepTwo: React.FC<StepTwoProps> = ({ formData, setFormData }) => {
+	const handleRoleSelection = (role: string) => {
+		setFormData((prev) => ({ ...prev, userType: role }))
+	}
+
 	return (
 		<div className="space-y-6">
 			<p className="text-gray-400 text-center mb-8">
@@ -36,9 +19,7 @@ export const StepTwo: React.FC<StepTwoProps> = ({ formData, setFormData }) => {
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 				<button
-					onClick={() =>
-						setFormData((prev) => ({ ...prev, userType: "freelancer" }))
-					}
+					onClick={() => handleRoleSelection("freelancer")}
 					className={`p-8 rounded-lg border-2 transition-all ${
 						formData.userType === "freelancer"
 							? "border-violet-600 bg-violet-600/10"
@@ -53,9 +34,7 @@ export const StepTwo: React.FC<StepTwoProps> = ({ formData, setFormData }) => {
 				</button>
 
 				<button
-					onClick={() =>
-						setFormData((prev) => ({ ...prev, userType: "client" }))
-					}
+					onClick={() => handleRoleSelection("client")}
 					className={`p-8 rounded-lg border-2 transition-all ${
 						formData.userType === "client"
 							? "border-violet-600 bg-violet-600/10"

@@ -11,108 +11,57 @@ import { StepFour } from "../components/finish-profile/step-four"
 import { StepOne } from "../components/finish-profile/step-one"
 import { StepThree } from "../components/finish-profile/step-three"
 import { StepTwo } from "../components/finish-profile/step-two"
+import { industries } from "@/lib/constants/industries"
+import { addSkill, removeSkill } from "@/lib/utils/skillsUtils"
 
 export default function ProfileSetupPage(): React.ReactElement {
 	const [currentStep, setCurrentStep] = useState(1)
 	const [skillInput, setSkillInput] = useState("")
-	const [phoneError, setPhoneError] = useState("")
-	const [formData, setFormData] = useState({
+	const [formData, setFormData] = useState<FinishProfileRequest>({
 		fullName: "",
 		country: "",
 		address: "",
-		phoneNumber: "",
-		phoneFormat: "+1",
+		phone: "",
 		userType: "",
 		industry: "",
 		title: "",
-		skills: ["React", "TypeScript", "Node.js", "Next.js", "Tailwind CSS"],
+		skills: [],
+		links: [],
+		languages: [],
+		education: [],
+		certifications: [],
+		paymentMethod: "",
+		governmentIdUrl: "",
 	})
-
-	const countries = [
-		{ name: "United States", code: "+1" },
-		{ name: "Philippines", code: "+63" },
-		{ name: "Canada", code: "+2" },
-		{ name: "United Kingdom", code: "+44" },
-		{ name: "Australia", code: "+61" },
-		{ name: "India", code: "+91" },
-		{ name: "Germany", code: "+49" },
-		{ name: "France", code: "+33" },
-	]
-
-	const industries = [
-		"Software Development",
-		"Web Development",
-		"Mobile Development",
-		"Data Science",
-		"UI/UX Design",
-		"DevOps",
-		"Cloud Architecture",
-		"Machine Learning",
-	]
 
 	const handleInputChange = (
 		e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
 	) => {
 		const { name, value } = e.target
-
-		if (name === "phoneNumber") {
-			if (value === "" || /^\d*$/.test(value)) {
-				setFormData((prev) => ({ ...prev, [name]: value }))
-				setPhoneError("")
-			} else {
-				setPhoneError("Phone number can only contain numbers")
-			}
-		} else {
-			setFormData((prev) => ({ ...prev, [name]: value }))
-		}
-
-		if (name === "country") {
-			const selected = countries.find((c) => c.name === value)
-			if (selected) {
-				setFormData((prev) => ({ ...prev, phoneFormat: selected.code }))
-			}
-		}
-	}
-
-	const addSkill = () => {
-		if (skillInput.trim() && !formData.skills.includes(skillInput.trim())) {
-			setFormData((prev) => ({
-				...prev,
-				skills: [...prev.skills, skillInput.trim()],
-			}))
-			setSkillInput("")
-		}
-	}
-
-	const removeSkill = (skillToRemove: string) => {
-		setFormData((prev) => ({
-			...prev,
-			skills: prev.skills.filter((skill) => skill !== skillToRemove),
-		}))
+		setFormData((prev) => ({ ...prev, [name]: value }))
 	}
 
 	const nextStep = () => {
-		if (currentStep < 4) setCurrentStep(currentStep + 1)
+		if (currentStep === 2 && formData.userType === "client") {
+			// Skip StepThree if the user is a client
+			setCurrentStep(4)
+		} else if (currentStep < 4) {
+			setCurrentStep(currentStep + 1)
+		}
 	}
 
 	const prevStep = () => {
-		if (currentStep > 1) setCurrentStep(currentStep - 1)
+		if (currentStep === 4 && formData.userType === "client") {
+			// Go back to StepTwo if the user is a client
+			setCurrentStep(2)
+		} else if (currentStep > 1) {
+			setCurrentStep(currentStep - 1)
+		}
 	}
 
 	const handleFinish = async () => {
-		const payload: FinishProfileRequest = {
-			fullName: formData.fullName,
-			country: formData.country,
-			address: formData.address,
-			phone: `${formData.phoneFormat}${formData.phoneNumber}`,
-			userType: formData.userType,
-			industry: formData.industry,
-			title: formData.title,
-			skills: formData.skills,
-		}
-
 		try {
-			const result = await submitFinishProfile(payload)
+			const result = await submitFinishProfile(formData)
 
 			if (result.success) {
 				toast.success("Profile completed successfully!", {
@@ -173,9 +122,8 @@ export default function ProfileSetupPage(): React.ReactElement {
 					{currentStep === 1 && (
 						<StepOne
 							formData={formData}
-							phoneError={phoneError}
-							countries={countries}
 							handleInputChange={handleInputChange}
+							setFormData={setFormData}
 						/>
 					)}
 					{currentStep === 2 && (
@@ -184,15 +132,12 @@ export default function ProfileSetupPage(): React.ReactElement {
 							setFormData={setFormData}
 						/>
 					)}
-					{currentStep === 3 && (
+					{currentStep === 3 && formData.userType === "freelancer" && (
 						<StepThree
 							formData={formData}
-							industries={industries}
 							skillInput={skillInput}
 							setSkillInput={setSkillInput}
-							handleInputChange={handleInputChange}
-							addSkill={addSkill}
-							removeSkill={removeSkill}
+							setFormData={setFormData}
 						/>
 					)}
 					{currentStep === 4 && <StepFour formData={formData} />}
@@ -216,12 +161,12 @@ export default function ProfileSetupPage(): React.ReactElement {
 										(!formData.fullName ||
 											!formData.country ||
 											!formData.address ||
-											!formData.phoneNumber)) ||
+											!formData.phone)) ||
 									(currentStep === 2 && !formData.userType) ||
 									(currentStep === 3 &&
 										(!formData.industry ||
 											!formData.title ||
-											formData.skills.length === 0))
+											(formData.skills?.length || 0) === 0))
 								}
 								className="px-6 py-3 bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium group"
 							>

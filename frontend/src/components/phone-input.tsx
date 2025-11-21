@@ -36,7 +36,7 @@ const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
 				<RPNInput.default
 					ref={ref}
 					className={cn(
-						"flex items-center gap-2 bg-white/5 border border-transparent rounded-lg focus-within:border-violet-600 focus-within:ring-1 focus-within:ring-violet-600 transition-colors",
+						"flex items-center gap-2 bg-white/5 border border-input rounded-lg focus-within:border-violet-600 focus-within:ring-1 focus-within:ring-violet-600 transition-colors h-12", // Added consistent height
 						className,
 					)}
 					flagComponent={FlagComponent}
@@ -58,7 +58,7 @@ const InputComponent = React.forwardRef<
 >(({ className, ...props }, ref) => (
 	<Input
 		className={cn(
-			"rounded-e-lg rounded-s-none bg-transparent text-white placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-0",
+			"rounded-e-lg rounded-s-none bg-transparent text-white placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-0 h-full", // Ensures full height
 			className,
 		)}
 		{...props}
@@ -99,7 +99,7 @@ const CountrySelect = ({
 				<Button
 					type="button"
 					variant="outline"
-					className="flex gap-1 rounded-e-none rounded-s-lg border-r-0 px-3 bg-white/5 hover:bg-white/10 focus:ring-1 focus:ring-violet-600 focus:border-violet-600 transition-colors"
+					className="flex gap-1 rounded-e-none rounded-s-lg border-r-0 px-3 bg-white/5 hover:bg-white/10 focus:ring-1 focus:ring-violet-600 focus:border-violet-600 transition-colors h-full" // Ensures full height
 					disabled={disabled}
 				>
 					<FlagComponent
