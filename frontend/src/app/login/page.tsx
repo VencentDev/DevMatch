@@ -8,7 +8,6 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { submitLogin } from "@/lib/api/login"
 import { LoginRequest } from "@/lib/types/login"
-import { authGuard } from "@/lib/HOC/authGuard"
 
 function LoginPage(): React.ReactElement {
 	const [formData, setFormData] = useState<LoginRequest>({
@@ -225,4 +224,4 @@ function LoginPage(): React.ReactElement {
 	)
 }
 
-export default authGuard(LoginPage)
+export default LoginPage
