@@ -48,9 +48,16 @@ public class AuthController {
                 .maxAge(7 * 24 * 60 * 60)
                 .sameSite("Lax")
                 .build();
-
+        ResponseCookie profileCookie = ResponseCookie.from("profileCompleted",
+                        String.valueOf(resp.isProfileCompleted()))
+                .httpOnly(false)
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .sameSite("Lax")
+                .build();
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(HttpHeaders.SET_COOKIE, profileCookie.toString())
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .body(resp);
     }
@@ -62,7 +69,7 @@ public class AuthController {
     }
 
 
-    @PostMapping("/verify/{token}")
+    @PostMapping("/verify-email/{token}")
     public ResponseEntity<?> verifyEmailPost(@PathVariable String token) {
         if (token == null || token.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Token missing"));

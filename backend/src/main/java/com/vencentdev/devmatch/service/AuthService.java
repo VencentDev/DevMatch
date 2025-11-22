@@ -74,7 +74,7 @@ public class AuthService {
                 .map(a -> a.getAuthority())
                 .collect(Collectors.toList());
 
-        String token = jwtUtil.generateToken(user.getUsername());
+        String token = jwtUtil.generateToken(user);
 
         return new LoginResponse(
                 user.getUsername(),
