@@ -3,6 +3,7 @@ package com.vencentdev.devmatch.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +12,10 @@ import java.util.*;
 
 @Entity
 @Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class User implements UserDetails {
 
     @Id
@@ -42,7 +47,6 @@ public class User implements UserDetails {
     private String country;
     private String address;
     private String phone;
-
     private String governmentIdUrl;
 
     @Enumerated(EnumType.STRING)
@@ -68,101 +72,28 @@ public class User implements UserDetails {
 
     private String industry;
     private String paymentMethod;
-
     private boolean emailVerified = false;
     private boolean profileCompleted = false;
 
-    public User() {}
+    // --------------- IMPORTANT FIXES ----------------------
 
-    public User(String username, String email, String password, Role role, UserType userType) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.userType = userType;
-    }
-
-    // ---------------------
-    // Getters & Setters
-    // ---------------------
-
-    public Long getId() { return id; }
-
-    public String getUsernameRaw() { return username; }
-
+    /**
+     * REAL Spring Security username.
+     * MUST BE the actual username stored in DB.
+     */
     @Override
     public String getUsername() {
-        // Supports login using either email or username
+        return username;
+    }
+
+    /**
+     * Convenience for login (username OR email).
+     */
+    public String getLoginIdentifier() {
         return email != null ? email : username;
     }
 
-    public void setUsername(String username) { this.username = username; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    @Override
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-
-    public Role getRole() { return role; }
-    public void setRole(Role role) { this.role = role; }
-
-    public UserType getUserType() { return userType; }
-    public void setUserType(UserType userType) { this.userType = userType; }
-
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
-
-    public String getCountry() { return country; }
-    public void setCountry(String country) { this.country = country; }
-
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
-
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
-
-    public String getGovernmentIdUrl() { return governmentIdUrl; }
-    public void setGovernmentIdUrl(String governmentIdUrl) { this.governmentIdUrl = governmentIdUrl; }
-
-    public KycStatus getKycStatus() { return kycStatus; }
-    public void setKycStatus(KycStatus kycStatus) { this.kycStatus = kycStatus; }
-
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-
-    public Set<String> getSkills() { return skills; }
-    public void setSkills(Set<String> skills) { this.skills = skills; }
-
-    public List<String> getLinks() { return links; }
-    public void setLinks(List<String> links) { this.links = links; }
-
-    public Set<String> getLanguages() { return languages; }
-    public void setLanguages(Set<String> languages) { this.languages = languages; }
-
-    public Set<String> getEducation() { return education; }
-    public void setEducation(Set<String> education) { this.education = education; }
-
-    public Set<String> getCertifications() { return certifications; }
-    public void setCertifications(Set<String> certifications) { this.certifications = certifications; }
-
-    public String getIndustry() { return industry; }
-    public void setIndustry(String industry) { this.industry = industry; }
-
-    public String getPaymentMethod() { return paymentMethod; }
-    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
-
-    public boolean isEmailVerified() { return emailVerified; }
-    public void setEmailVerified(boolean emailVerified) { this.emailVerified = emailVerified; }
-
-    public boolean isProfileCompleted() { return profileCompleted; }
-    public void setProfileCompleted(boolean profileCompleted) { this.profileCompleted = profileCompleted; }
-
-
-    // ---------------------
-    // Spring Security Methods
-    // ---------------------
+    // --------------- UserDetails overrides -----------------
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -175,38 +106,29 @@ public class User implements UserDetails {
         return List.of(new SimpleGrantedAuthority(roleName));
     }
 
-    @Override
-    public boolean isAccountNonExpired() { return true; }
-
-    @Override
-    public boolean isAccountNonLocked() { return true; }
-
-    @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    @Override public boolean isAccountNonExpired() { return true; }
+    @Override public boolean isAccountNonLocked() { return true; }
+    @Override public boolean isCredentialsNonExpired() { return true; }
 
     @Override
     public boolean isEnabled() {
-        // Backend checks email verification manually
+        // You check emailVerified manually in your logic
         return true;
     }
 
-    // ---------------------
-    // Equals & Hashcode
-    // ---------------------
+    // --------------- equals / hashcode ---------------------
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof User)) return false;
-        return Objects.equals(id, ((User) o).id);
+        if (!(o instanceof User other)) return false;
+        return Objects.equals(id, other.id);
     }
 
     @Override
     public int hashCode() { return Objects.hash(id); }
 
-    // ---------------------
-    // Enums
-    // ---------------------
+    // --------------- Enums ----------------------
 
     public enum UserType {
         UNKNOWN,
