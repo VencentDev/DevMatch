@@ -6,6 +6,7 @@ import com.vencentdev.devmatch.controller.dto.ProfileResponse;
 import com.vencentdev.devmatch.model.User;
 import com.vencentdev.devmatch.repository.UserRepository;
 import com.vencentdev.devmatch.service.AuthService;
+import com.vencentdev.devmatch.service.ProfileService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +19,12 @@ public class UserController {
 
     private final AuthService authService;
     private final UserRepository userRepository;
+    private final ProfileService profileService;
 
-    public UserController(AuthService authService, UserRepository userRepository) {
+    public UserController(AuthService authService, UserRepository userRepository, ProfileService profileService) {
         this.authService = authService;
         this.userRepository = userRepository;
+        this.profileService = profileService;
     }
 
     @GetMapping("/profile")
@@ -85,8 +88,40 @@ public class UserController {
             return ResponseEntity.status(401).body(Map.of("error", "Not authenticated"));
         }
 
+        // Validate role
+        if (req.getRole() == null || req.getRole().isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Role is required"));
+        }
+
+        String role = req.getRole().trim().toUpperCase();
+
+        if (!role.equals("FREELANCER") && !role.equals("CLIENT")) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Role must be freelancer or client"));
+        }
+
+        // If CLIENT — forbid freelancer-only fields
+        if (role.equals("CLIENT")) {
+            if (req.getIndustry() != null || req.getTitle() != null || req.getSkills() != null) {
+                return ResponseEntity
+                        .badRequest()
+                        .body(Map.of("error", "Clients cannot submit industry/title/skills"));
+            }
+        }
+
+        // If FREELANCER — ensure required fields exist
+        if (role.equals("FREELANCER")) {
+            if (req.getIndustry() == null ||
+                    req.getTitle() == null ||
+                    req.getSkills() == null) {
+                return ResponseEntity
+                        .badRequest()
+                        .body(Map.of("error", "Freelancers must have industry, title, and skills"));
+            }
+        }
+
         String username = authentication.getName();
-        return ResponseEntity.ok(authService.finishProfile(username, req));
+        return ResponseEntity.ok(profileService.finishProfile(username, req));
     }
+
 
 }

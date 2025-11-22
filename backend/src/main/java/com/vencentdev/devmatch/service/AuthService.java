@@ -120,51 +120,6 @@ public class AuthService {
     }
 
     // ---------------------------------------------------------
-    // FINISH PROFILE
-    // ---------------------------------------------------------
-    public Map<String, Object> finishProfile(String username, FinishProfileRequest req) {
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
-
-        // role assignment
-        if (req.getRole() != null && !req.getRole().isBlank()) {
-            roleRepository.findByName(req.getRole()).ifPresent(user::setRole);
-        }
-
-        // userType
-        if (req.getUserType() != null && !req.getUserType().isBlank()) {
-            try {
-                user.setUserType(User.UserType.valueOf(req.getUserType().toUpperCase()));
-            } catch (IllegalArgumentException ignored) {}
-        }
-
-        // common fields
-        if (req.getFullName() != null) user.setFullName(req.getFullName());
-        if (req.getCountry() != null) user.setCountry(req.getCountry());
-        if (req.getAddress() != null) user.setAddress(req.getAddress());
-        if (req.getPhone() != null) user.setPhone(req.getPhone());
-        if (req.getGovernmentIdUrl() != null) user.setGovernmentIdUrl(req.getGovernmentIdUrl());
-
-        // freelancer
-        if (req.getTitle() != null) user.setTitle(req.getTitle());
-        if (req.getSkills() != null) user.setSkills(new HashSet<>(req.getSkills()));
-        if (req.getLinks() != null) user.setLinks(req.getLinks());
-        if (req.getLanguages() != null) user.setLanguages(new HashSet<>(req.getLanguages()));
-        if (req.getEducation() != null) user.setEducation(new HashSet<>(req.getEducation()));
-        if (req.getCertifications() != null) user.setCertifications(new HashSet<>(req.getCertifications()));
-
-        // client
-        if (req.getIndustry() != null) user.setIndustry(req.getIndustry());
-        if (req.getPaymentMethod() != null) user.setPaymentMethod(req.getPaymentMethod());
-
-        user.setProfileCompleted(true);
-        userRepository.save(user);
-
-        return Map.of("message", "Profile updated successfully");
-    }
-
-    // ---------------------------------------------------------
     // VERIFY EMAIL TOKEN
     // ---------------------------------------------------------
     public Map<String, Object> verifyToken(String token) {
