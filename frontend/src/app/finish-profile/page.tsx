@@ -41,7 +41,6 @@ function ProfileSetupPage(): React.ReactElement {
 
 	const nextStep = () => {
 		if (currentStep === 2 && formData.userType === "client") {
-			// Skip StepThree if the user is a client
 			setCurrentStep(4)
 		} else if (currentStep < 4) {
 			setCurrentStep(currentStep + 1)
@@ -50,7 +49,6 @@ function ProfileSetupPage(): React.ReactElement {
 
 	const prevStep = () => {
 		if (currentStep === 4 && formData.userType === "client") {
-			// Go back to StepTwo if the user is a client
 			setCurrentStep(2)
 		} else if (currentStep > 1) {
 			setCurrentStep(currentStep - 1)
@@ -64,7 +62,6 @@ function ProfileSetupPage(): React.ReactElement {
 			if (result.success) {
 				toast.success("Profile completed successfully!", {
 					position: "top-center",
-					style: { backgroundColor: "green", color: "white" },
 				})
 				window.location.href = "/feed"
 			} else {
@@ -72,14 +69,12 @@ function ProfileSetupPage(): React.ReactElement {
 					result.error || "Failed to complete profile. Please try again.",
 					{
 						position: "bottom-right",
-						style: { backgroundColor: "red", color: "white" },
 					},
 				)
 			}
 		} catch (error) {
 			toast.error("An unexpected error occurred. Please try again later.", {
 				position: "bottom-right",
-				style: { backgroundColor: "red", color: "white" },
 			})
 			console.error("Error completing profile:", error)
 		}

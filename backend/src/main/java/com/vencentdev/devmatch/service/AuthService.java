@@ -1,10 +1,9 @@
-// java
 package com.vencentdev.devmatch.service;
 
+import com.vencentdev.devmatch.controller.dto.LoginResponse;
 import com.vencentdev.devmatch.controller.dto.SignupRequest;
 import com.vencentdev.devmatch.controller.dto.FinishProfileRequest;
 import com.vencentdev.devmatch.model.User;
-import com.vencentdev.devmatch.model.Role;
 import com.vencentdev.devmatch.repository.RoleRepository;
 import com.vencentdev.devmatch.repository.UserRepository;
 import com.vencentdev.devmatch.util.JwtUtil;
@@ -21,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
+
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -34,7 +34,8 @@ public class AuthService {
                        PasswordEncoder passwordEncoder,
                        RoleRepository roleRepository,
                        VerificationTokenService tokenService,
-                       JwtUtil jwtUtil, EmailService emailService) {
+                       JwtUtil jwtUtil,
+                       EmailService emailService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -44,45 +45,59 @@ public class AuthService {
         this.emailService = emailService;
     }
 
-    public Map<String, Object> login(String identifier, String password) throws AuthenticationException {
-        // Find user by username or email
+    // ---------------------------------------------------------
+    // LOGIN (returns LoginResponse)
+    // ---------------------------------------------------------
+    public LoginResponse login(String identifier, String rawPassword) {
+
+        // find user by email or username
         User user = userRepository.findByUsername(identifier)
                 .or(() -> userRepository.findByEmail(identifier))
-                .orElseThrow(() -> new IllegalArgumentException("Invalid username/email"));
+                .orElseThrow(() -> new IllegalArgumentException("No username or email found"));
 
-        // Authenticate the user
-        try {
-            Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(user.getUsername(), password)
-            );
-            SecurityContextHolder.getContext().setAuthentication(auth);
-
-            List<String> roles = auth.getAuthorities().stream()
-                    .map(a -> a.getAuthority())
-                    .collect(Collectors.toList());
-
-            String token = jwtUtil.generateToken(user.getUsername());
-
-            return Map.of(
-                    "username", user.getUsername(),
-                    "roles", roles,
-                    "token", token,
-                    "accessToken", token,
-                    "message", "Login successful",
-                    "profileCompleted", user.isProfileCompleted(),
-                    "emailVerified", user.isEmailVerified()
-            );
-        } catch (AuthenticationException e) {
-            throw new AuthenticationException("Invalid username/email or password") {};
+        // password check
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Password incorrect");
         }
+
+        if (!user.isEmailVerified()) {
+            throw new IllegalStateException("Please verify your email before logging in");
+        }
+
+        // authenticate through Spring Security
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getUsername(), rawPassword)
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        List<String> roles = auth.getAuthorities().stream()
+                .map(a -> a.getAuthority())
+                .collect(Collectors.toList());
+
+        String token = jwtUtil.generateToken(user);
+
+        return new LoginResponse(
+                user.getUsername(),
+                user.getEmail(),
+                roles,
+                user.isProfileCompleted(),
+                user.isEmailVerified(),
+                token,
+                "Login successful"
+        );
     }
 
+    // ---------------------------------------------------------
+    // SIGNUP
+    // ---------------------------------------------------------
     public Map<String, Object> signup(SignupRequest req) {
+
         if (userRepository.findByUsername(req.getUsername()).isPresent()) {
-            return Map.of("error", "Username already taken");
+            throw new IllegalArgumentException("Username already taken");
         }
+
         if (userRepository.findByEmail(req.getEmail()).isPresent()) {
-            return Map.of("error", "Email already registered");
+            throw new IllegalArgumentException("Email already taken");
         }
 
         User user = new User();
@@ -91,56 +106,22 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setEmailVerified(false);
         user.setProfileCompleted(false);
+
         userRepository.save(user);
 
+        // Generate verification token
         String token = tokenService.createTokenForUser(user);
         emailService.sendVerificationEmail(user.getEmail(), token);
-        return Map.of("message", "Signup successful, verify email", "token", token);
+
+        return Map.of(
+                "message", "Signup successful, verify email",
+                "token", token
+        );
     }
 
-    public Map<String, Object> finishProfile(String username, FinishProfileRequest req) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
-
-        // single role assignment
-        if (req.getRole() != null && !req.getRole().isBlank()) {
-            roleRepository.findByName(req.getRole()).ifPresent(user::setRole);
-        }
-
-        // parse and set userType if provided
-        if (req.getUserType() != null && !req.getUserType().isBlank()) {
-            try {
-                user.setUserType(User.UserType.valueOf(req.getUserType().toUpperCase()));
-            } catch (IllegalArgumentException ignored) {
-                // invalid userType string - ignore or log as needed
-            }
-        }
-
-        // common fields
-        if (req.getFullName() != null) user.setFullName(req.getFullName());
-        if (req.getCountry() != null) user.setCountry(req.getCountry());
-        if (req.getAddress() != null) user.setAddress(req.getAddress());
-        if (req.getPhone() != null) user.setPhone(req.getPhone());
-        if (req.getGovernmentIdUrl() != null) user.setGovernmentIdUrl(req.getGovernmentIdUrl());
-
-        // freelancer-specific
-        if (req.getTitle() != null) user.setTitle(req.getTitle());
-        if (req.getSkills() != null) user.setSkills(new HashSet<>(req.getSkills()));
-        if (req.getLinks() != null) user.setLinks(req.getLinks());
-        if (req.getLanguages() != null) user.setLanguages(new HashSet<>(req.getLanguages()));
-        if (req.getEducation() != null) user.setEducation(new HashSet<>(req.getEducation()));
-        if (req.getCertifications() != null) user.setCertifications(new HashSet<>(req.getCertifications()));
-
-        // client-specific
-        if (req.getIndustry() != null) user.setIndustry(req.getIndustry());
-        if (req.getPaymentMethod() != null) user.setPaymentMethod(req.getPaymentMethod());
-
-        user.setProfileCompleted(true);
-        userRepository.save(user);
-
-        return Map.of("message", "Profile updated successfully");
-    }
-
+    // ---------------------------------------------------------
+    // VERIFY EMAIL TOKEN
+    // ---------------------------------------------------------
     public Map<String, Object> verifyToken(String token) {
         return tokenService.verifyToken(token);
     }

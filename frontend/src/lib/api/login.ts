@@ -4,12 +4,13 @@ export const submitLogin = async (payload: LoginRequest): Promise<LoginResponse>
     try {
         const response = await fetch("http://localhost:8080/api/auth/login", {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(payload),
         });
-
+        console.log("Login payload:", payload);
         const text = await response.text();
         type LoginResponseData = {
             token?: string;
@@ -55,6 +56,7 @@ export const submitLogin = async (payload: LoginRequest): Promise<LoginResponse>
                 token,
                 profileCompleted: Boolean(data?.profileCompleted ?? data?.profile_completed),
             },
+            
         };
     } catch (error) {
         console.error("Login API error:", error);
