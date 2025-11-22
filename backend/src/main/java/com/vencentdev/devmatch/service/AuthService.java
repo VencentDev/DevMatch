@@ -48,8 +48,11 @@ public class AuthService {
         // Find user by username or email
         User user = userRepository.findByUsername(identifier)
                 .or(() -> userRepository.findByEmail(identifier))
-                .orElseThrow(() -> new IllegalArgumentException("Invalid username/email"));
+                .orElseThrow(() -> new IllegalArgumentException("No username or email found"));
 
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Password incorrect");
+        }
         // Authenticate the user
         try {
             Authentication auth = authenticationManager.authenticate(
@@ -79,10 +82,10 @@ public class AuthService {
 
     public Map<String, Object> signup(SignupRequest req) {
         if (userRepository.findByUsername(req.getUsername()).isPresent()) {
-            return Map.of("error", "Username already taken");
+            throw new IllegalArgumentException("Username already taken");
         }
         if (userRepository.findByEmail(req.getEmail()).isPresent()) {
-            return Map.of("error", "Email already registered");
+            throw new IllegalArgumentException("Email already taken");
         }
 
         User user = new User();

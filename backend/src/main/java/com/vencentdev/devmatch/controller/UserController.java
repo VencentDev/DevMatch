@@ -1,20 +1,19 @@
 // java
 package com.vencentdev.devmatch.controller;
 
+import com.vencentdev.devmatch.controller.dto.FinishProfileRequest;
 import com.vencentdev.devmatch.controller.dto.ProfileResponse;
 import com.vencentdev.devmatch.model.User;
 import com.vencentdev.devmatch.repository.UserRepository;
 import com.vencentdev.devmatch.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/user")
 public class UserController {
 
     private final AuthService authService;
@@ -76,5 +75,14 @@ public class UserController {
         resp.setRole(role);
 
         return ResponseEntity.ok(resp);
+    }
+
+    @PostMapping("/finish-profile")
+    public ResponseEntity<?> finishProfile(@RequestBody FinishProfileRequest req, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Not authenticated"));
+        }
+        String username = authentication.getName();
+        return ResponseEntity.ok(authService.finishProfile(username, req));
     }
 }

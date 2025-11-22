@@ -1,4 +1,3 @@
-// java
 package com.vencentdev.devmatch.security;
 
 import com.vencentdev.devmatch.util.JwtUtil;
@@ -17,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
@@ -29,15 +29,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
+
+        // ⭐ IMPORTANT: Skip authentication for public endpoints
+        String path = request.getServletPath();
+        if (path.startsWith("/api/auth")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String token = null;
 
-        // try cookie first
+        // Cookie first
         Cookie cookie = WebUtils.getCookie(request, "ACCESS_TOKEN");
         if (cookie != null) {
             token = cookie.getValue();
         }
 
-        // fallback to Authorization header
+        // Authorization header fallback
         if (token == null) {
             String header = request.getHeader("Authorization");
             if (header != null && header.startsWith("Bearer ")) {
@@ -47,28 +55,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                if (jwtUtil.validateToken(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
+                if (jwtUtil.validateToken(token) &&
+                        SecurityContextHolder.getContext().getAuthentication() == null) {
+
                     String username = jwtUtil.getUsernameFromToken(token);
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
 
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(auth);
 
-                    System.out.println("Authenticated user: " + username + " for request "
-                            + request.getMethod() + " " + request.getRequestURI());
+                    System.out.println("Authenticated user: " + username +
+                            " for request " + request.getMethod() + " " + request.getRequestURI());
                 }
-            } catch (io.jsonwebtoken.ExpiredJwtException e) {
-                System.out.println("JWT expired: " + e.getMessage());
-            } catch (io.jsonwebtoken.SignatureException e) {
-                System.out.println("JWT signature invalid: " + e.getMessage());
             } catch (Exception ex) {
                 System.out.println("JWT processing error: " + ex.getMessage());
             }
         } else {
-            System.out.println("No JWT found for request " + request.getMethod() + " " + request.getRequestURI());
+            System.out.println("No JWT found for " +
+                    request.getMethod() + " " + request.getRequestURI());
         }
 
         chain.doFilter(request, response);

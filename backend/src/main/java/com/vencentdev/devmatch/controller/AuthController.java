@@ -5,12 +5,12 @@ import com.vencentdev.devmatch.controller.dto.SignupRequest;
 import com.vencentdev.devmatch.controller.dto.FinishProfileRequest;
 import com.vencentdev.devmatch.model.User;
 import com.vencentdev.devmatch.model.VerificationToken;
-import com.vencentdev.devmatch.service.AuthService;
 import com.vencentdev.devmatch.service.EmailService;
-import com.vencentdev.devmatch.service.EmailServiceImpl;
+import com.vencentdev.devmatch.service.AuthService;
 import com.vencentdev.devmatch.service.VerificationTokenService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -74,8 +74,9 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest req) {
-        return ResponseEntity.ok(authService.signup(req));
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.signup(req));
     }
+
 
     @PostMapping("/verify/{token}")
     public ResponseEntity<?> verifyEmailPost(@PathVariable String token) {
@@ -104,14 +105,5 @@ public class AuthController {
         emailService.sendVerificationEmail(user.getEmail(), newToken);
 
         return ResponseEntity.ok(Map.of("message", "Verification email resent"));
-    }
-
-    @PostMapping("/finish-profile")
-    public ResponseEntity<?> finishProfile(@RequestBody FinishProfileRequest req, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).body(Map.of("error", "Not authenticated"));
-        }
-        String username = authentication.getName();
-        return ResponseEntity.ok(authService.finishProfile(username, req));
     }
 }

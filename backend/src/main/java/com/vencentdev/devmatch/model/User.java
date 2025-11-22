@@ -1,4 +1,3 @@
-// java
 package com.vencentdev.devmatch.model;
 
 import jakarta.persistence.*;
@@ -13,6 +12,7 @@ import java.util.*;
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,67 +38,38 @@ public class User implements UserDetails {
     @Column(name = "user_type", nullable = false)
     private UserType userType = UserType.UNKNOWN;
 
-    // common profile fields
-    @Column(name = "full_name")
     private String fullName;
-
-    @Column(name = "country")
     private String country;
-
-    @Column(name = "address")
     private String address;
-
-    @Column(name = "phone")
     private String phone;
 
-    // Shared KYC/government id fields
-    @Column(name = "government_id_url")
     private String governmentIdUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "kyc_status", nullable = false)
+    @Column(nullable = false)
     private KycStatus kycStatus = KycStatus.PENDING;
 
-    // Freelancer-specific
-    @Column(name = "title")
-    private String title; // headline
+    private String title;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_skills", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "skill")
+    @ElementCollection(fetch = FetchType.LAZY)
     private Set<String> skills = new HashSet<>();
 
-    @ElementCollection
-    @CollectionTable(name = "user_links", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "link")
+    @ElementCollection(fetch = FetchType.LAZY)
     private List<String> links = new ArrayList<>();
 
-    @ElementCollection
-    @CollectionTable(name = "user_languages", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "language")
+    @ElementCollection(fetch = FetchType.LAZY)
     private Set<String> languages = new HashSet<>();
 
-    @ElementCollection
-    @CollectionTable(name = "user_education", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "education")
+    @ElementCollection(fetch = FetchType.LAZY)
     private Set<String> education = new HashSet<>();
 
-    @ElementCollection
-    @CollectionTable(name = "user_certifications", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "certification")
+    @ElementCollection(fetch = FetchType.LAZY)
     private Set<String> certifications = new HashSet<>();
 
-    // Client-specific
-    @Column(name = "industry")
     private String industry;
-
-    @Column(name = "payment_method")
     private String paymentMethod;
 
-    @Column(nullable = false)
     private boolean emailVerified = false;
-
-    @Column(nullable = false)
     private boolean profileCompleted = false;
 
     public User() {}
@@ -111,10 +82,27 @@ public class User implements UserDetails {
         this.userType = userType;
     }
 
+    // ---------------------
+    // Getters & Setters
+    // ---------------------
+
     public Long getId() { return id; }
 
+    public String getUsernameRaw() { return username; }
+
+    @Override
+    public String getUsername() {
+        // Supports login using either email or username
+        return email != null ? email : username;
+    }
+
     public void setUsername(String username) { this.username = username; }
+
+    public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    @Override
+    public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
     public Role getRole() { return role; }
@@ -171,19 +159,21 @@ public class User implements UserDetails {
     public boolean isProfileCompleted() { return profileCompleted; }
     public void setProfileCompleted(boolean profileCompleted) { this.profileCompleted = profileCompleted; }
 
+
+    // ---------------------
+    // Spring Security Methods
+    // ---------------------
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (role == null || role.getName() == null) return Collections.emptySet();
-        return Collections.singleton(new SimpleGrantedAuthority(role.getName()));
+        if (role == null || role.getName() == null) return Collections.emptyList();
+
+        String roleName = role.getName().startsWith("ROLE_")
+                ? role.getName()
+                : "ROLE_" + role.getName();
+
+        return List.of(new SimpleGrantedAuthority(roleName));
     }
-
-    @Override
-    public String getPassword() { return password; }
-
-    @Override
-    public String getUsername() { return username; }
-
-    public String getEmail() { return email; }
 
     @Override
     public boolean isAccountNonExpired() { return true; }
@@ -194,22 +184,29 @@ public class User implements UserDetails {
     @Override
     public boolean isCredentialsNonExpired() { return true; }
 
-    // make account enabled only after email verification
     @Override
-    public boolean isEnabled() { return emailVerified; }
+    public boolean isEnabled() {
+        // Backend checks email verification manually
+        return true;
+    }
+
+    // ---------------------
+    // Equals & Hashcode
+    // ---------------------
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof User)) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id);
+        return Objects.equals(id, ((User) o).id);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
+    public int hashCode() { return Objects.hash(id); }
+
+    // ---------------------
+    // Enums
+    // ---------------------
 
     public enum UserType {
         UNKNOWN,

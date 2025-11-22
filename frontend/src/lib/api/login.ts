@@ -9,7 +9,7 @@ export const submitLogin = async (payload: LoginRequest): Promise<LoginResponse>
             },
             body: JSON.stringify(payload),
         });
-
+        console.log("Login payload:", payload);
         const text = await response.text();
         type LoginResponseData = {
             token?: string;
@@ -55,6 +55,7 @@ export const submitLogin = async (payload: LoginRequest): Promise<LoginResponse>
                 token,
                 profileCompleted: Boolean(data?.profileCompleted ?? data?.profile_completed),
             },
+            
         };
     } catch (error) {
         console.error("Login API error:", error);
