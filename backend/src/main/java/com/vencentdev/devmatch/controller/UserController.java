@@ -78,11 +78,15 @@ public class UserController {
     }
 
     @PostMapping("/finish-profile")
-    public ResponseEntity<?> finishProfile(@RequestBody FinishProfileRequest req, Authentication authentication) {
+    public ResponseEntity<?> finishProfile(@RequestBody FinishProfileRequest req,
+                                           Authentication authentication) {
+
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).body(Map.of("error", "Not authenticated"));
         }
+
         String username = authentication.getName();
         return ResponseEntity.ok(authService.finishProfile(username, req));
     }
+
 }

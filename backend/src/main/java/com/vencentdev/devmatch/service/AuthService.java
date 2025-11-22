@@ -60,6 +60,10 @@ public class AuthService {
             throw new IllegalArgumentException("Password incorrect");
         }
 
+        if (!user.isEmailVerified()) {
+            throw new IllegalStateException("Please verify your email before logging in");
+        }
+
         // authenticate through Spring Security
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getUsername(), rawPassword)

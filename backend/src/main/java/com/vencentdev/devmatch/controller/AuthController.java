@@ -37,30 +37,24 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
 
-        try {
-            LoginResponse resp = authService.login(req.identifier(), req.password());
-            String token = resp.getToken();
+        LoginResponse resp = authService.login(req.identifier(), req.password());
+        String token = resp.getToken();
 
-            // HttpOnly cookie
-            ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", token)
-                    .httpOnly(true)
-                    .secure(false)
-                    .path("/")
-                    .maxAge(7 * 24 * 60 * 60)
-                    .sameSite("Lax")
-                    .build();
+        // HttpOnly cookie (secure should be true in production)
+        ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", token)
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .sameSite("Lax")
+                .build();
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                    .body(resp);
-
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(400).body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
-        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .body(resp);
     }
+
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest req) {
