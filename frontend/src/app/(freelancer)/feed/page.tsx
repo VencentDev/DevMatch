@@ -140,7 +140,7 @@ export default function FeedPage() {
 					{/* Page Header with Sort Button */}
 					<div className="mb-8 animate-fade-in flex items-center">
 						<div>
-							<h1 className="text-3xl font-bold text-white mb-2 mr-4">
+							<h1 className="text-3xl font-bold text-white mr-4">
 								Available Projects
 							</h1>
 						</div>
@@ -198,7 +198,7 @@ export default function FeedPage() {
 					</div>
 
 					{/* Projects Grid */}
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
 						{sortedProjects.map((project, idx) => (
 							<div
 								key={project.id}

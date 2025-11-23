@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { Calendar, DollarSign, FileText } from 'lucide-react'
+import { Calendar, DollarSign, FileText } from "lucide-react"
 
 interface ProjectData {
 	id: string
