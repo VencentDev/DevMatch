@@ -8,7 +8,7 @@ interface StepTwoProps {
 
 export const StepTwo: React.FC<StepTwoProps> = ({ formData, setFormData }) => {
 	const handleRoleSelection = (role: string) => {
-		setFormData((prev) => ({ ...prev, userType: role }))
+		setFormData((prev) => ({ ...prev, role: role }))
 	}
 
 	return (
@@ -19,9 +19,9 @@ export const StepTwo: React.FC<StepTwoProps> = ({ formData, setFormData }) => {
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 				<button
-					onClick={() => handleRoleSelection("freelancer")}
+					onClick={() => handleRoleSelection("role_freelancer")}
 					className={`p-8 rounded-lg border-2 transition-all ${
-						formData.userType === "freelancer"
+						formData.role === "role_freelancer"
 							? "border-violet-600 bg-violet-600/10"
 							: "border-white/10 bg-white/5 hover:border-white/20"
 					}`}
@@ -34,9 +34,9 @@ export const StepTwo: React.FC<StepTwoProps> = ({ formData, setFormData }) => {
 				</button>
 
 				<button
-					onClick={() => handleRoleSelection("client")}
+					onClick={() => handleRoleSelection("role_client")}
 					className={`p-8 rounded-lg border-2 transition-all ${
-						formData.userType === "client"
+						formData.role === "role_client"
 							? "border-violet-600 bg-violet-600/10"
 							: "border-white/10 bg-white/5 hover:border-white/20"
 					}`}

@@ -12,6 +12,7 @@ import {
 	Sun,
 	Briefcase,
 } from "lucide-react"
+import { logout } from "@/lib/api/logout"
 
 export default function AccountHeader() {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -49,15 +50,14 @@ export default function AccountHeader() {
 			<div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
 				{/* Left Section - Logo */}
 				<div className="flex items-center gap-6 min-w-fit">
-          <a href="/feed">
-					<div className="flex items-center gap-2 font-bold text-xl text-white">
-            
-						<div className="w-8 h-8 bg-linear-to-br from-violet-500 to-violet-700 rounded-lg flex items-center justify-center text-white text-sm font-bold">
-							DM
+					<a href="/feed">
+						<div className="flex items-center gap-2 font-bold text-xl text-white">
+							<div className="w-8 h-8 bg-linear-to-br from-violet-500 to-violet-700 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+								DM
+							</div>
+							<span className="hidden sm:inline">DevMatch</span>
 						</div>
-						<span className="hidden sm:inline">DevMatch</span>
-					</div>
-          </a>
+					</a>
 				</div>
 
 				{/* Center Section - Search */}
@@ -118,10 +118,10 @@ export default function AccountHeader() {
 
 								<div className="py-2">
 									<a href="/profile">
-									<button className="w-full px-4 py-2 flex items-center gap-3 text-white/70 hover:text-white hover:bg-white/5 transition-colors text-sm">
-										<User size={16} />
-										<span>Profile</span>
-									</button>
+										<button className="w-full px-4 py-2 flex items-center gap-3 text-white/70 hover:text-white hover:bg-white/5 transition-colors text-sm">
+											<User size={16} />
+											<span>Profile</span>
+										</button>
 									</a>
 
 									<a
@@ -130,13 +130,10 @@ export default function AccountHeader() {
 									>
 										<Briefcase size={16} />
 										<span>Active Projects</span>
-                    <span className="bg-violet-500/20 text-violet-300 px-2 py-0.5 rounded text-xs font-semibold group-hover:bg-violet-500/30 transition-colors">
+										<span className="bg-violet-500/20 text-violet-300 px-2 py-0.5 rounded text-xs font-semibold group-hover:bg-violet-500/30 transition-colors">
 											5
 										</span>
 									</a>
-
-										
-
 
 									<a
 										href="/proposals"
@@ -170,7 +167,10 @@ export default function AccountHeader() {
 										</button>
 									</div>
 
-									<button className="w-full px-4 py-2 flex items-center gap-3 text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm border-t border-white/10 mt-2">
+									<button
+										className="w-full px-4 py-2 flex items-center gap-3 text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-colors text-sm border-t border-white/10 mt-2"
+										onClick={logout}
+									>
 										<LogOut size={16} />
 										<span>Logout</span>
 									</button>

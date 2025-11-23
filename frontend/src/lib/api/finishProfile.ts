@@ -2,8 +2,9 @@ import { FinishProfileRequest } from "../types/finishProfile";
 
 export const submitFinishProfile = async (payload: FinishProfileRequest) => {
     try {
-        const response = await fetch("http://localhost:8080/api/auth/finish-profile", {
+        const response = await fetch("http://localhost:8080/api/user/finish-profile", {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json",
             },
@@ -14,7 +15,7 @@ export const submitFinishProfile = async (payload: FinishProfileRequest) => {
             const data = await response.json();
             return { success: true, data };
         } else {
-            const errorData = await response.json();
+            const errorData = await response.json().catch(() => ({}));
             return { success: false, error: errorData.error || "Unknown error occurred" };
         }
     } catch (error) {
