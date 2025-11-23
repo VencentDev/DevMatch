@@ -97,4 +97,28 @@ public class AuthController {
 
         return ResponseEntity.ok(Map.of("message", "Verification email resent"));
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        ResponseCookie deleteJwt = ResponseCookie.from("ACCESS_TOKEN", "")
+                .path("/")
+                .maxAge(0)
+                .httpOnly(true)
+                .sameSite("Lax")
+                .secure(false)
+                .build();
+
+        ResponseCookie deleteProfile = ResponseCookie.from("profileCompleted", "")
+                .path("/")
+                .maxAge(0)
+                .httpOnly(false)
+                .sameSite("Lax")
+                .secure(false)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, deleteJwt.toString())
+                .header(HttpHeaders.SET_COOKIE, deleteProfile.toString())
+                .body(Map.of("message", "Logged out successfully"));
+    }
 }

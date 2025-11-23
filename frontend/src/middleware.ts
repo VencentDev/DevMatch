@@ -8,37 +8,46 @@ export function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
   const pathname = req.nextUrl.pathname;
 
-  // Always force no-cache headers
-  const res = NextResponse.next();
-  res.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+  // Public routes (NO auth required)
+  const publicRoutes = ["/", "/home-page", "/login", "/signup"];
+  const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
 
-  // Redirect root → home-page
-  if (pathname === "/") {
-    url.pathname = "/home-page";
-    return NextResponse.redirect(url);
-  }
+  // Profile setup route
+  const isProfileRoute = pathname.startsWith("/finish-profile");
 
-  // Block access to /login if authenticated
-  if (pathname.startsWith("/login") && token) {
+  // Force no cache
+  const response = NextResponse.next();
+  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+
+  // Block logged-in users from /login and /signup
+  if ((pathname.startsWith("/login") || pathname.startsWith("/signup")) && token) {
     url.pathname = "/feed";
     return NextResponse.redirect(url);
   }
 
-  // If /finish-profile is accessed without login → redirect
-  if (pathname.startsWith("/finish-profile") && !token) {
+  // If user is NOT logged in and trying to access a protected route → redirect to login
+  if (!isPublicRoute && !isProfileRoute && !token) {
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  // If profile already finished → redirect
-  if (pathname.startsWith("/finish-profile") && profileCompleted) {
+  // If accessing /finish-profile without token → redirect
+  if (isProfileRoute && !token) {
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  // If profile is already completed → block access to finish-profile
+  if (isProfileRoute && profileCompleted) {
     url.pathname = "/feed";
     return NextResponse.redirect(url);
   }
 
-  return res;
+  return response;
 }
 
 export const config = {
-  matcher: ["/", "/login", "/finish-profile/:path*"],
+  matcher: [
+    "/:path*",         
+  ],
 };

@@ -29,7 +29,6 @@ public class DataInitializer {
                 freelancer.setEmail("freelancer@gmail.com");
                 freelancer.setPassword(encoder.encode("Freelancer1!"));
                 freelancer.setRole(freelancerRole);
-                freelancer.setUserType(User.UserType.FREELANCER);
                 freelancer.setEmailVerified(true);
                 freelancer.setProfileCompleted(true);
                 userRepo.save(freelancer);
@@ -41,7 +40,6 @@ public class DataInitializer {
                 client.setEmail("client@gmail.com");
                 client.setPassword(encoder.encode("Client1!"));
                 client.setRole(clientRole);
-                client.setUserType(User.UserType.CLIENT);
                 client.setEmailVerified(true);
                 client.setProfileCompleted(true);
                 userRepo.save(client);
@@ -53,7 +51,6 @@ public class DataInitializer {
                 admin.setEmail("admin@gmail.com");
                 admin.setPassword(encoder.encode("Admin1!"));
                 admin.setRole(adminRole);
-                admin.setUserType(User.UserType.UNKNOWN);
                 admin.setEmailVerified(true);
                 admin.setProfileCompleted(true);
                 userRepo.save(admin);

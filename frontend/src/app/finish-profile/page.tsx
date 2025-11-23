@@ -16,20 +16,14 @@ function ProfileSetupPage(): React.ReactElement {
 	const [currentStep, setCurrentStep] = useState(1)
 	const [skillInput, setSkillInput] = useState("")
 	const [formData, setFormData] = useState<FinishProfileRequest>({
+		role: "",
 		fullName: "",
 		country: "",
 		address: "",
 		phone: "",
-		userType: "",
 		industry: "",
 		title: "",
 		skills: [],
-		links: [],
-		languages: [],
-		education: [],
-		certifications: [],
-		paymentMethod: "",
-		governmentIdUrl: "",
 	})
 
 	const handleInputChange = (
@@ -40,7 +34,7 @@ function ProfileSetupPage(): React.ReactElement {
 	}
 
 	const nextStep = () => {
-		if (currentStep === 2 && formData.userType === "client") {
+		if (currentStep === 2 && formData.role === "role_client") {
 			setCurrentStep(4)
 		} else if (currentStep < 4) {
 			setCurrentStep(currentStep + 1)
@@ -48,7 +42,7 @@ function ProfileSetupPage(): React.ReactElement {
 	}
 
 	const prevStep = () => {
-		if (currentStep === 4 && formData.userType === "client") {
+		if (currentStep === 4 && formData.role === "role_client") {
 			setCurrentStep(2)
 		} else if (currentStep > 1) {
 			setCurrentStep(currentStep - 1)
@@ -125,7 +119,7 @@ function ProfileSetupPage(): React.ReactElement {
 							setFormData={setFormData}
 						/>
 					)}
-					{currentStep === 3 && formData.userType === "freelancer" && (
+					{currentStep === 3 && formData.role === "role_freelancer" && (
 						<StepThree
 							formData={formData}
 							skillInput={skillInput}
@@ -155,7 +149,7 @@ function ProfileSetupPage(): React.ReactElement {
 											!formData.country ||
 											!formData.address ||
 											!formData.phone)) ||
-									(currentStep === 2 && !formData.userType) ||
+									(currentStep === 2 && !formData.role) ||
 									(currentStep === 3 &&
 										(!formData.industry ||
 											!formData.title ||

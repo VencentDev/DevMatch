@@ -95,12 +95,12 @@ public class UserController {
 
         String role = req.getRole().trim().toUpperCase();
 
-        if (!role.equals("FREELANCER") && !role.equals("CLIENT")) {
+        if (!role.equals("ROLE_FREELANCER") && !role.equals("ROLE_CLIENT")) {
             return ResponseEntity.badRequest().body(Map.of("error", "Role must be freelancer or client"));
         }
 
         // If CLIENT — forbid freelancer-only fields
-        if (role.equals("CLIENT")) {
+        if (role.equals("ROLE_CLIENT")) {
             if (req.getIndustry() != null || req.getTitle() != null || req.getSkills() != null) {
                 return ResponseEntity
                         .badRequest()
@@ -109,7 +109,7 @@ public class UserController {
         }
 
         // If FREELANCER — ensure required fields exist
-        if (role.equals("FREELANCER")) {
+        if (role.equals("ROLE_FREELANCER")) {
             if (req.getIndustry() == null ||
                     req.getTitle() == null ||
                     req.getSkills() == null) {

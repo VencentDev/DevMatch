@@ -36,11 +36,17 @@ export const StepFour: React.FC<StepFourProps> = ({ formData }) => {
 					<h3 className="text-sm font-medium text-gray-400 mb-2">
 						Account Type
 					</h3>
-					<p className="text-white capitalize">{formData.userType}</p>
+					<p className="text-white capitalize">
+						{formData.role === "role_freelancer"
+							? "Freelancer"
+							: formData.role === "role_client"
+							? "Client"
+							: ""}
+					</p>
 				</div>
 
 				{/* Professional Information (Only for Freelancers) */}
-				{formData.userType === "freelancer" && (
+				{formData.role === "role_freelancer" && (
 					<div>
 						<h3 className="text-sm font-medium text-gray-400 mb-2">
 							Professional Information
