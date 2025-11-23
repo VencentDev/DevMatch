@@ -97,7 +97,7 @@ export default function ProjectsPage() {
 	const [sortBy, setSortBy] = useState("recent")
 	const [budgetSort, setBudgetSort] = useState("asc")
 	const [currentPage, setCurrentPage] = useState(1)
-	const itemsPerPage = 3
+	const itemsPerPage = 5
 
 	const filteredProjects = userProjects.filter((project) =>
 		project.name.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -342,6 +342,20 @@ export default function ProjectsPage() {
 													<span className="text-xs text-white/60">
 														{proposal.rating}
 													</span>
+													<span>
+														<div className="flex flex-wrap gap-1.5">
+															{/* Skills */}
+
+															{proposal.skills.map((skill) => (
+																<span
+																	key={skill}
+																	className="px-2 py-0.5 bg-violet-500/20 text-violet-300 text-xs rounded-sm border border-violet-500/30 group-hover:bg-violet-500/30 group-hover:border-violet-500/50 transition-all"
+																>
+																	{skill}
+																</span>
+															))}
+														</div>
+													</span>
 												</div>
 												<p className="text-xs text-white/50 mt-0.5">
 													{proposal.email}
@@ -355,18 +369,6 @@ export default function ProjectsPage() {
 													{proposal.timestamp}
 												</p>
 											</div>
-										</div>
-
-										{/* Skills */}
-										<div className="flex flex-wrap gap-1.5 mt-2">
-											{proposal.skills.map((skill) => (
-												<span
-													key={skill}
-													className="px-2 py-0.5 bg-violet-500/20 text-violet-300 text-xs rounded-sm border border-violet-500/30 group-hover:bg-violet-500/30 group-hover:border-violet-500/50 transition-all"
-												>
-													{skill}
-												</span>
-											))}
 										</div>
 									</div>
 								))}
