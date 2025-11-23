@@ -78,7 +78,7 @@ export default function ProjectsSidebar({
 						placeholder="Search projects..."
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
-						className="w-full bg-white/5 border border-violet-500/20 rounded-lg pl-10 pr-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:border-violet-500/50 focus:bg-white/10 transition-all"
+						className="w-full bg-white/5 border border-violet-500/20 rounded-sm pl-10 pr-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:border-violet-500/50 focus:bg-white/10 transition-all"
 					/>
 				</div>
 			</div>
@@ -91,7 +91,7 @@ export default function ProjectsSidebar({
 							<button
 								key={project.id}
 								onClick={() => onSelectProject(project.id)}
-								className={`w-full flex items-start gap-3 p-3 rounded-lg transition-all text-left ${
+								className={`w-full flex items-start gap-3 p-3 rounded-sm transition-all text-left ${
 									selectedProjectId === project.id
 										? "bg-violet-500/20 border border-violet-500/40"
 										: "hover:bg-white/5 border border-transparent"

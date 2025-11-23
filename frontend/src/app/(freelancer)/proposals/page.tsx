@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { Menu, X } from "lucide-react"
 import AccountHeader from "../../components/account-header"
-import ProposalsFilters from "../../components/proposal/proposals-filters"
-import ProposalsList from "../../components/proposal/proposals-list"
+import ProposalsFilters from "@/app/components/(freelancer)/proposal/proposals-filters"
+import ProposalsList from "@/app/components/(freelancer)/proposal/proposals-list"
 
 export default function ProposalsPage() {
 	const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])

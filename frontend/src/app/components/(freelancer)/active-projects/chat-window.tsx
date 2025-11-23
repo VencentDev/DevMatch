@@ -199,15 +199,15 @@ export default function ChatWindow({
 			{/* Messages Container */}
 			<div className="flex-1 overflow-y-auto p-6 space-y-4">
 				{isReadOnly && (
-					<div className="absolute inset-0 bg-black/20 flex items-center justify-center rounded-lg">
-						<div className="bg-black/95 border border-violet-500/30 rounded-lg p-6 text-center space-y-4 max-w-sm">
+					<div className="absolute inset-0 bg-black/20 flex items-center justify-center rounded-sm">
+						<div className="bg-black/95 border border-violet-500/30 rounded-sm p-6 text-center space-y-4 max-w-sm">
 							<p className="text-white/60 text-sm">
 								Congratulations on Finishing your project! Please provide your
 								review and feedback below.
 							</p>
 							<button
 								onClick={() => setIsReviewModalOpen(true)}
-								className="px-4 py-2 bg-violet-500 hover:bg-violet-600 text-white rounded-lg transition-colors font-medium"
+								className="px-4 py-2 bg-violet-500 hover:bg-violet-600 text-white rounded-sm transition-colors font-medium"
 							>
 								Leave a Review
 							</button>
@@ -222,7 +222,7 @@ export default function ChatWindow({
 						}`}
 					>
 						<div
-							className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${
+							className={`max-w-xs lg:max-w-md px-4 py-3 rounded-sm ${
 								message.sender === "user"
 									? "bg-violet-500/20 border border-violet-500/40 text-white"
 									: "bg-white/5 border border-white/10 text-white"
@@ -247,7 +247,7 @@ export default function ChatWindow({
 			<div className="border-t border-violet-500/20 p-4 space-y-4">
 				{isCompleted ? (
 					// Completion reminder for completed projects
-					<div className="bg-linear-to-r from-green-500/10 to-green-500/5 border border-green-500/30 rounded-lg p-4 space-y-2">
+					<div className="bg-linear-to-r from-green-500/10 to-green-500/5 border border-green-500/30 rounded-sm p-4 space-y-2">
 						<p className="text-sm font-semibold text-green-300">
 							Conversation Completion Notice
 						</p>
@@ -258,7 +258,7 @@ export default function ChatWindow({
 					</div>
 				) : isReadOnly ? (
 					// Review prompt for Rate/Review status
-					<div className="bg-linear-to-r from-violet-500/10 to-violet-500/5 border border-violet-500/30 rounded-lg p-4 space-y-3">
+					<div className="bg-linear-to-r from-violet-500/10 to-violet-500/5 border border-violet-500/30 rounded-sm p-4 space-y-3">
 						<p className="text-sm font-semibold text-violet-300">
 							Share Your Feedback
 						</p>
@@ -272,7 +272,7 @@ export default function ChatWindow({
 					<>
 						<div className="flex gap-3">
 							{/* Attach File Button */}
-							<button className="shrink-0 w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 text-violet-400 flex items-center justify-center transition-colors border border-violet-500/20 hover:border-violet-500/40">
+							<button className="shrink-0 w-10 h-10 rounded-sm bg-white/5 hover:bg-white/10 text-violet-400 flex items-center justify-center transition-colors border border-violet-500/20 hover:border-violet-500/40">
 								<Plus size={20} />
 							</button>
 
@@ -283,13 +283,13 @@ export default function ChatWindow({
 								onChange={(e) => setMessageInput(e.target.value)}
 								onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
 								placeholder="Type your message..."
-								className="w-full max-w-xs sm:max-w-md md:max-w-lg flex-1 bg-white/5 border border-violet-500/20 rounded-lg px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:border-violet-500/50 focus:bg-white/10 transition-all"
+								className="w-full max-w-xs sm:max-w-md md:max-w-lg flex-1 bg-white/5 border border-violet-500/20 rounded-sm px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:border-violet-500/50 focus:bg-white/10 transition-all"
 							/>
 
 							{/* Send Button */}
 							<button
 								onClick={handleSendMessage}
-								className="shrink-0 w-10 h-10 rounded-lg bg-violet-500 hover:bg-violet-600 text-white flex items-center justify-center transition-colors"
+								className="shrink-0 w-10 h-10 rounded-sm bg-violet-500 hover:bg-violet-600 text-white flex items-center justify-center transition-colors"
 							>
 								<Send size={20} />
 							</button>
