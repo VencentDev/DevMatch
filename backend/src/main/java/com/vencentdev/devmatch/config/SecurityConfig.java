@@ -71,6 +71,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/signup").permitAll()
                         .requestMatchers("/api/auth/forgot-password").permitAll()
                         .requestMatchers("/api/auth/verify-email/**").permitAll()
+                        .requestMatchers("/api/auth/logout").permitAll()
 
                         .requestMatchers("/api/badges/**").permitAll()
 
